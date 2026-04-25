@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smash Point – Mosonmagyaróvár</title>
+  <meta name="description" content="Smash Point burgerező Mosonmagyaróváron. Friss smash burgerek, ropogós köretek, különleges szószok. Bite into happiness with every burger." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">SMASH<span>POINT</span></a>
+    <button class="hamburger" id="hamburger" aria-label="Menü megnyitása">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html" class="active">Főoldal</a></li>
+      <li><a href="etlap.html">Étlap</a></li>
+      <li><a href="rolunk.html">Rólunk</a></li>
+      <li><a href="kapcsolat.html">Kapcsolat</a></li>
+      <li><a href="rendeles.html" class="nav-order-btn">Rendelés →</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-img"></div>
+    <div class="hero-content">
+      <img src="img/logo.jpg" alt="Smash Point logó" class="hero-logo-img" />
+      <div class="hero-sub">Mosonmagyaróvár</div>
+      <p>Friss alapanyagok, ropogósra préselt húspogácsa, házi szószok – ez a smash burger élmény, ahogy lennie kell.</p>
+      <div class="hero-btns">
+        <a href="etlap.html" class="btn btn-primary">Étlap megtekintése</a>
+        <a href="https://wolt.com/en/hun/mosonmagyarovar/restaurant/smash-point" target="_blank" class="btn btn-outline">Rendelj Wolton →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MASCOT + CTA -->
+  <section style="background: var(--dark2); padding: 4rem 2rem;">
+    <div class="container">
+      <div class="mascot-section">
+        <img src="img/logo.jpg" alt="Smash Point mascot" class="mascot-img" />
+        <div class="mascot-text">
+          <h2>"Bite into happiness<br><span>with every burger."</span></h2>
+          <p>A smash burger technika lényege: a frissen formázott húspogácsát forró öntöttvas lapra tesszük, majd erőteljesen lepréseljük. Ez hozza létre a tökéletes ropogós kérget – a szaftosság és a textúra tökéletes kombinációja.</p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="etlap.html" class="btn btn-primary">Teljes étlap</a>
+            <a href="rolunk.html" class="btn btn-outline">Rólunk →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section>
+    <div class="container">
+      <div class="section-label">Miért válassz minket</div>
+      <h2 class="section-title">Ez a <span>Smash Point</span></h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🥩</div>
+          <h3>Friss Hús</h3>
+          <p>Minden nap frissen előkészített marhahús pogácsák, fagyasztott hús nélkül.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔥</div>
+          <h3>Smash Technika</h3>
+          <p>Forró vas sütőlapra préselt pogácsa – tökéletes ropogós Maillard-kéreg.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧀</div>
+          <h3>Prémium Cheddar</h3>
+          <p>Tökéletesen olvadó sajt minden burgerben, kompromisszumok nélkül.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🛵</div>
+          <h3>Wolt Kiszállítás</h3>
+          <p>Rendeld házhoz Wolton – gyorsan és egyszerűen, Mosonmagyaróváron.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENU PREVIEW -->
+  <section style="background: var(--dark2); padding: 5rem 2rem;">
+    <div class="container">
+      <div class="section-label">Amit kínálunk</div>
+      <h2 class="section-title">Népszerű <span>Fogásaink</span></h2>
+      <p class="section-desc">Klasszikus smash burgerektől a csípős különlegességekig – mindenkinek megvan a maga kedvence.</p>
+
+      <div class="menu-preview-grid">
+        <div class="menu-card">
+          <img src="img/smash_sajtburger.jpg" alt="Smash Sajtburger" class="menu-card-img" />
+          <div class="menu-card-body">
+            <div class="menu-card-info">
+              <h4>Smash Sajtburger</h4>
+              <p>A klasszikus – egyszerű, tökéletes</p>
+            </div>
+            <div class="menu-card-price">3 190 Ft</div>
+          </div>
+        </div>
+        <div class="menu-card">
+          <img src="img/point_burger.jpg" alt="Point Burger" class="menu-card-img" />
+          <div class="menu-card-body">
+            <div class="menu-card-info">
+              <h4>Point Burger</h4>
+              <p>Dupla húspogácsa, dupla élvezet</p>
+            </div>
+            <div class="menu-card-price">3 990 Ft</div>
+          </div>
+        </div>
+        <div class="menu-card">
+          <img src="img/angry_burger_menu.jpg" alt="Angry Point Burger" class="menu-card-img" />
+          <div class="menu-card-body">
+            <div class="menu-card-info">
+              <h4>Angry Point Burger</h4>
+              <p>Csirke, fekete chili – nem való gyáváknak</p>
+            </div>
+            <div class="menu-card-price">4 450 Ft</div>
+          </div>
+        </div>
+        <div class="menu-card">
+          <img src="img/tripla_burger.jpg" alt="Tripla Point Burger" class="menu-card-img" />
+          <div class="menu-card-body">
+            <div class="menu-card-info">
+              <h4>Tripla Point Burger</h4>
+              <p>Három pogácsa igazi éheseknek</p>
+            </div>
+            <div class="menu-card-price">4 890 Ft</div>
+          </div>
+        </div>
+        <div class="menu-card">
+          <img src="img/gold_smash.jpg" alt="Gold Smash" class="menu-card-img" />
+          <div class="menu-card-body">
+            <div class="menu-card-info">
+              <h4>Gold Smash ✨</h4>
+              <p>Rántott cheddar, chutney – prémium</p>
+            </div>
+            <div class="menu-card-price">6 350 Ft</div>
+          </div>
+        </div>
+        <div class="menu-card">
+          <img src="img/sef_kedvence.jpg" alt="Séf Kedvence" class="menu-card-img" />
+          <div class="menu-card-body">
+            <div class="menu-card-info">
+              <h4>Séf Kedvence</h4>
+              <p>Bacon, BBQ, Buldak szósz</p>
+            </div>
+            <div class="menu-card-price">5 590 Ft</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 2.5rem;">
+        <a href="etlap.html" class="btn btn-primary">Teljes étlap megtekintése →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WOLT BANNER -->
+  <section style="padding: 2rem 2rem 5rem;">
+    <div class="container">
+      <div class="wolt-banner">
+        <h3>🛵 Rendelj Most Wolton!</h3>
+        <p>Otthon vagy az irodában? Hozzuk mi! Gyors kiszállítás Mosonmagyaróváron.</p>
+        <a href="https://wolt.com/en/hun/mosonmagyarovar/restaurant/smash-point" target="_blank" class="btn btn-wolt">Megrendelem Wolton</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">SMASH<span>POINT</span></div>
+    <p class="footer-tagline">Bite into happiness with every burger. 🍔</p>
+    <ul class="footer-links">
+      <li><a href="index.html">Főoldal</a></li>
+      <li><a href="etlap.html">Étlap</a></li>
+      <li><a href="rolunk.html">Rólunk</a></li>
+      <li><a href="kapcsolat.html">Kapcsolat</a></li>
+      <li><a href="https://wolt.com/en/hun/mosonmagyarovar/restaurant/smash-point" target="_blank">Wolt</a></li>
+    </ul>
+    <div class="footer-bottom">
+      <p>© 2025 Smash Point – Liszt Ferenc utca 26., 9200 Mosonmagyaróvár</p>
+    </div>
+  </footer>
+
+  <script>
+    const btn = document.getElementById('hamburger');
+    const links = document.getElementById('nav-links');
+    btn.addEventListener('click', () => links.classList.toggle('open'));
+  </script>
+</body>
+</html>

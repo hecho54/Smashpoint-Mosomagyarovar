@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rendelés – Smash Point Mosonmagyaróvár</title>
+  <meta name="description" content="Rendelj online a Smash Point burgerezőből Mosonmagyaróváron. Elvitel és házhozszállítás." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── Layout ── */
+    .order-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      min-height: calc(100vh - 68px);
+    }
+
+    /* ── Category nav ── */
+    .cat-nav {
+      position: sticky;
+      top: 68px;
+      z-index: 50;
+      background: rgba(13,10,23,0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .cat-nav::-webkit-scrollbar { display: none; }
+
+    .cat-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.45rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .cat-btn.active {
+      background: var(--pink);
+      border-color: var(--pink);
+      color: #fff;
+      box-shadow: 0 0 12px var(--pink-glow);
+    }
+
+    /* ── Menu grid ── */
+    .items-grid {
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      align-content: start;
+    }
+
+    .item-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.15s;
+      cursor: pointer;
+    }
+    .item-card:hover { transform: translateY(-2px); border-color: var(--border2); }
+    .item-card.in-cart { border-color: var(--pink); box-shadow: 0 0 16px rgba(255,31,155,0.1); }
+
+    .item-card img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      display: block;
+    }
+    .item-card-body { padding: 0.85rem; }
+
+    .item-card h4 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 0.2rem;
+      line-height: 1.2;
+    }
+    .item-card p { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.7rem; line-height: 1.4; }
+
+    .item-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .item-price {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--pink);
+    }
+    .item-add-btn {
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      line-height: 1;
+    }
+    .item-add-btn:hover { background: var(--pink-dark); }
+
+    .item-qty-controls { display: flex; align-items: center; gap: 0.4rem; }
+    .qty-btn {
+      background: var(--card2);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+    .qty-btn:hover { border-color: var(--pink); color: var(--pink); }
+    .qty-num { font-family: 'Oswald', sans-serif; font-size: 1rem; font-weight: 700; min-width: 20px; text-align: center; color: #fff; }
+
+    /* ── Cart sidebar ── */
+    .order-cart {
+      background: var(--dark2);
+      border-left: 1px solid var(--border);
+      position: sticky;
+      top: 68px;
+      height: calc(100vh - 68px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .cart-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .cart-header h2 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+      flex: 1;
+    }
+    .cart-count-badge {
+      background: var(--pink);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+    }
+
+    .cart-empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      text-align: center;
+      padding: 2rem;
+    }
+    .cart-empty-state .ei { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
+    .cart-empty-state p { font-size: 0.88rem; line-height: 1.6; }
+
+    .cart-items-list { flex: 1; overflow-y: auto; }
+
+    .cart-item {
+      padding: 0.7rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .cart-item-img {
+      width: 42px;
+      height: 42px;
+      object-fit: cover;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .cart-item-info { flex: 1; min-width: 0; }
+    .cart-item-name { font-size: 0.82rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cart-item-sub { font-size: 0.75rem; color: var(--pink); }
+    .cart-item-controls { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; }
+    .cqb {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+    .cqb:hover { border-color: var(--pink); color: var(--pink); }
+    .cqn { font-family: 'Oswald', sans-serif; font-size: 0.9rem; font-weight: 700; min-width: 16px; text-align: center; }
+
+    /* ── Checkout form ── */
+    .checkout-form {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      flex-shrink: 0;
+      overflow-y: auto;
+      max-height: 60vh;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+    .total-row .tamt { color: var(--pink); }
+
+    .flabel {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 0.35rem;
+    }
+
+    .toggle-group { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+    .toggle-group.three { grid-template-columns: 1fr 1fr 1fr; }
+
+    .tbtn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.55rem 0.4rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      font-family: 'Inter', sans-serif;
+    }
+    .tbtn.active {
+      background: rgba(255,31,155,0.12);
+      border-color: var(--pink);
+      color: var(--pink);
+    }
+
+    .finput {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.65rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      resize: none;
+      transition: border-color 0.2s;
+    }
+    .finput:focus { border-color: var(--pink); }
+    .finput::placeholder { color: var(--muted); }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.9rem;
+      font-size: 0.95rem;
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Oswald', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 0 20px var(--pink-glow);
+      transition: all 0.2s;
+    }
+    .submit-btn:hover { background: var(--pink-dark); }
+    .submit-btn:disabled { background: var(--border); box-shadow: none; cursor: not-allowed; color: var(--muted); }
+
+    /* ── Mobile FAB ── */
+    .cart-fab {
+      display: none;
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      padding: 0.9rem 1.75rem;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(255,31,155,0.45);
+      z-index: 90;
+      white-space: nowrap;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .cart-fab:hover { transform: translateX(-50%) translateY(-2px); }
+
+    /* ── Mobile drawer ── */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 95;
+    }
+    .drawer-overlay.open { display: block; }
+
+    .cart-drawer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      max-height: 93vh;
+      background: var(--dark2);
+      border-top: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      z-index: 96;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .cart-drawer.open { transform: translateY(0); }
+    .drawer-handle { width: 40px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0.75rem auto 0; flex-shrink: 0; }
+    .drawer-scroll { overflow-y: auto; flex: 1; }
+
+    /* ── Success modal ── */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.88);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .success-overlay.open { display: flex; }
+    .success-card {
+      background: var(--dark2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    .success-icon { font-size: 4rem; margin-bottom: 1rem; }
+    .success-card h2 { font-family: 'Oswald', sans-serif; font-size: 2rem; text-transform: uppercase; color: var(--pink); margin-bottom: 0.75rem; }
+    .success-card p { color: var(--muted); margin-bottom: 0.5rem; font-size: 0.92rem; }
+    .order-num-pill {
+      display: inline-block;
+      background: var(--pink);
+      color: #fff;
+      font-family: 'Oswald', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      padding: 0.4rem 1.5rem;
+      border-radius: 8px;
+      margin: 0.5rem 0 1.5rem;
+    }
+
+    /* ── Closed banner ── */
+    .closed-banner {
+      background: linear-gradient(135deg, #2a0a1a, #1a0a2a);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      margin: 2rem auto;
+      max-width: 500px;
+    }
+    .closed-banner h3 { font-family: 'Oswald', sans-serif; font-size: 1.5rem; text-transform: uppercase; color: #fff; margin-bottom: 0.5rem; }
+    .closed-banner p { color: var(--muted); font-size: 0.9rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .order-layout { grid-template-columns: 1fr; }
+      .order-cart { display: none; }
+      .cart-fab { display: flex; }
+      .items-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); padding: 1rem; gap: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">SMASH<span>POINT</span></a>
+    <button class="hamburger" id="hamburger" aria-label="Menü megnyitása">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Főoldal</a></li>
+      <li><a href="etlap.html">Étlap</a></li>
+      <li><a href="rolunk.html">Rólunk</a></li>
+      <li><a href="kapcsolat.html">Kapcsolat</a></li>
+      <li><a href="rendeles.html" class="active nav-order-btn">Rendelés →</a></li>
+    </ul>
+  </nav>
+
+  <!-- CLOSED OVERLAY -->
+  <div id="closed-state" style="display:none; padding: 2rem;">
+    <div class="closed-banner">
+      <div style="font-size:3rem; margin-bottom:1rem;">🔒</div>
+      <h3>Jelenleg zárva vagyunk</h3>
+      <p>Az online rendelés csak nyitvatartási időben lehetséges.</p>
+      <br>
+      <p><strong style="color:#fff;">H–Cs, Szo: 11:00 – 19:00</strong></p>
+      <p>Péntek és vasárnap: zárva</p>
+    </div>
+  </div>
+
+  <!-- ORDERING UI -->
+  <div class="order-layout" id="order-ui">
+    <!-- Menu -->
+    <div>
+      <div class="cat-nav" id="cat-nav">
+        <button class="cat-btn active" data-cat="special">⭐ Különleges</button>
+        <button class="cat-btn" data-cat="burger">🍔 Burgerek</button>
+        <button class="cat-btn" data-cat="koret">🍟 Köretek</button>
+        <button class="cat-btn" data-cat="szosz">🥣 Szószok</button>
+        <button class="cat-btn" data-cat="desszert">🍫 Desszert</button>
+        <button class="cat-btn" data-cat="ital">🥤 Italok</button>
+      </div>
+      <div class="items-grid" id="items-grid"></div>
+    </div>
+
+    <!-- Cart sidebar (desktop) -->
+    <div class="order-cart">
+      <div class="cart-header">
+        <h2>🛒 Kosár</h2>
+        <span class="cart-count-badge" id="cart-badge">0</span>
+      </div>
+      <div class="cart-empty-state" id="cart-empty">
+        <div class="ei">🍔</div>
+        <p>A kosarad üres.<br>Adj hozzá tételeket a menüből!</p>
+      </div>
+      <div class="cart-items-list" id="cart-list"></div>
+      <div class="checkout-form" id="checkout-form" style="display:none">
+        <div class="total-row">
+          <span>Összesen</span>
+          <span class="tamt" id="total-display">0 Ft</span>
+        </div>
+
+        <div>
+          <span class="flabel">Átvétel módja</span>
+          <div class="toggle-group">
+            <button class="tbtn active" data-type="takeaway" id="tb-takeaway">🥡 Elviszem</button>
+            <button class="tbtn" data-type="delivery" id="tb-delivery">🛵 Házhozszállítás</button>
+          </div>
+        </div>
+
+        <input type="text" class="finput" id="c-name" placeholder="Teljes neved *" />
+        <input type="tel" class="finput" id="c-phone" placeholder="Telefonszám *" />
+        <div id="addr-group" style="display:none">
+          <input type="text" class="finput" id="c-address" placeholder="Cím (utca, házszám) *" />
+        </div>
+
+        <div>
+          <span class="flabel">Fizetési mód</span>
+          <div class="toggle-group three">
+            <button class="tbtn active" data-pay="cash">💵 Készpénz</button>
+            <button class="tbtn" data-pay="card">💳 Bankkártya</button>
+            <button class="tbtn" data-pay="szep">🎴 SZÉP kártya</button>
+          </div>
+        </div>
+
+        <textarea class="finput" id="c-notes" rows="2" placeholder="Megjegyzés (opcionális)"></textarea>
+
+        <button class="submit-btn" id="submit-btn">Rendelés leadása →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile FAB -->
+  <button class="cart-fab" id="cart-fab">
+    🛒 <span id="fab-count">0</span> tétel &nbsp;·&nbsp; <span id="fab-total">0 Ft</span>
+  </button>
+
+  <!-- Mobile drawer overlay -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="drawer-handle"></div>
+    <div class="cart-header" style="border-bottom:1px solid var(--border); padding:0.75rem 1.25rem; display:flex; align-items:center; gap:.75rem; flex-shrink:0;">
+      <h2 style="font-family:'Oswald',sans-serif;font-size:1.1rem;text-transform:uppercase;color:#fff;flex:1;">🛒 Kosár</h2>
+      <button onclick="closeDrawer()" style="background:var(--card);border:1px solid var(--border);color:var(--muted);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:1rem;">✕</button>
+    </div>
+    <div class="drawer-scroll">
+      <div class="cart-items-list" id="drawer-list"></div>
+      <div class="checkout-form" id="drawer-checkout" style="display:none">
+        <div class="total-row">
+          <span>Összesen</span>
+          <span class="tamt" id="drawer-total">0 Ft</span>
+        </div>
+        <div>
+          <span class="flabel">Átvétel módja</span>
+          <div class="toggle-group">
+            <button class="tbtn active" data-type="takeaway" id="dtb-takeaway">🥡 Elviszem</button>
+            <button class="tbtn" data-type="delivery" id="dtb-delivery">🛵 Házhozszállítás</button>
+          </div>
+        </div>
+        <input type="text" class="finput" id="dc-name" placeholder="Teljes neved *" />
+        <input type="tel" class="finput" id="dc-phone" placeholder="Telefonszám *" />
+        <div id="daddr-group" style="display:none">
+          <input type="text" class="finput" id="dc-address" placeholder="Cím (utca, házszám) *" />
+        </div>
+        <div>
+          <span class="flabel">Fizetési mód</span>
+          <div class="toggle-group three">
+            <button class="tbtn active" data-pay="cash">💵 Készpénz</button>
+            <button class="tbtn" data-pay="card">💳 Bankkártya</button>
+            <button class="tbtn" data-pay="szep">🎴 SZÉP kártya</button>
+          </div>
+        </div>
+        <textarea class="finput" id="dc-notes" rows="2" placeholder="Megjegyzés (opcionális)"></textarea>
+        <button class="submit-btn" id="dsubmit-btn">Rendelés leadása →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success modal -->
+  <div class="success-overlay" id="success-overlay">
+    <div class="success-card">
+      <div class="success-icon">🎉</div>
+      <h2>Rendelés leadva!</h2>
+      <p>Rendelésed száma:</p>
+      <div class="order-num-pill" id="success-num">#001</div>
+      <p>Hamarosan elkészítjük!<br>Köszönjük a rendelést! 🔥</p>
+      <br>
+      <button class="submit-btn" onclick="closeSuccess()" style="width:auto;padding:.75rem 2rem;">Új rendelés</button>
+    </div>
+  </div>
+
+  <script type="module">
+    // ═══════════════════════════════════════════════════════
+    //  FIREBASE KONFIGURÁCIÓ
+    //  Lépések:
+    //  1. Menj a https://console.firebase.google.com/ oldalra
+    //  2. Hozz létre egy új projektet ("smashpoint-mosonmagyarovar")
+    //  3. Adj hozzá egy Web alkalmazást
+    //  4. Másold ide a kapott firebaseConfig adatokat
+    //  5. A Firestore-ban hozz létre "orders" és "settings" gyűjteményeket
+    // ═══════════════════════════════════════════════════════
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getFirestore, collection, addDoc, doc, runTransaction, serverTimestamp, setDoc, getDoc }
+      from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey:            "AIzaSyA3KDdwfXpNOO4hxdsVwMzu8MyrmBB1ybA",
+      authDomain:        "smashpoint-mosonmagyarovar.firebaseapp.com",
+      projectId:         "smashpoint-mosonmagyarovar",
+      storageBucket:     "smashpoint-mosonmagyarovar.firebasestorage.app",
+      messagingSenderId: "1011499785566",
+      appId:             "1:1011499785566:web:56c393a2e5314c832203cf",
+      measurementId:     "G-XYNLLMYPBV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    // ── Nyitvatartás ellenőrzés ──────────────────────────
+    function isOpen() {
+      const now  = new Date();
+      const day  = now.getDay();          // 0=V, 1=H, ..., 6=Szo
+      const mins = now.getHours() * 60 + now.getMinutes();
+      const open = [1,2,3,4,6];          // H-Cs, Szo
+      return open.includes(day) && mins >= 660 && mins < 1140; // 11:00–19:00
+    }
+
+    if (!isOpen()) {
+      document.getElementById('closed-state').style.display = 'block';
+      document.getElementById('order-ui').style.display = 'none';
+    }
+
+    // ── Menü adatok ─────────────────────────────────────
+    const MENU = [
+      // Különleges ajánlatok
+      { id:'sef_kedvence',   cat:'special', name:'Séf Kedvence',          desc:'Bacon, BBQ szósz, Buldak szósz',               price:5590, img:'img/sef_kedvence.jpg',   badge:'AJÁNLOTT' },
+      { id:'gold_smash',     cat:'special', name:'Gold Smash',            desc:'Rántott cheddar sajt, chutney',                price:6350, img:'img/gold_smash.jpg',     badge:'PRÉMIUM'  },
+      { id:'mystery_burger', cat:'special', name:'Smash Mystery Burger',  desc:'Titokzatos limitált verzió',                   price:6490, img:'img/mystery_burger.jpg', badge:'LIMITÁLT' },
+      // Burgerek
+      { id:'smash_sajt',     cat:'burger',  name:'Smash Sajtburger',      desc:'1 húspogácsa, olvasztott cheddar, titkos szósz', price:3190, img:'img/smash_sajtburger.jpg' },
+      { id:'dupla_sajt',     cat:'burger',  name:'Dupla Smash Sajtburger',desc:'Dupla húspogácsa, dupla cheddar',              price:3890, img:'img/smash_sajtburger.jpg' },
+      { id:'point_1hus',     cat:'burger',  name:'Point Burger 1 Húsos',  desc:'Szaftos 1 húspogácsás smash burger',           price:3590, img:'img/point_burger.jpg'     },
+      { id:'point_burger',   cat:'burger',  name:'Point Burger',          desc:'2 húspogácsa – az igazi smash élmény',         price:3990, img:'img/point_burger.jpg'     },
+      { id:'tripla_burger',  cat:'burger',  name:'Tripla Point Burger',   desc:'3 húspogácsa igazi éheseknek',                 price:4890, img:'img/tripla_burger.jpg'    },
+      { id:'hawai_burger',   cat:'burger',  name:'Hawai Point Burger',    desc:'Csirke + ananász – trópusi twist',             price:4290, img:'img/hawai_burger_menu.jpg'},
+      { id:'angry_burger',   cat:'burger',  name:'Angry Point Burger',    desc:'Csirke + fekete chili 🌶️',                     price:4450, img:'img/angry_burger_menu.jpg'},
+      { id:'chili_cheese',   cat:'burger',  name:'Chili Cheese',          desc:'2 húspogácsa, 2 réteg cheddar',               price:4790, img:'img/point_burger.jpg'     },
+      { id:'fresh_burger',   cat:'burger',  name:'Point Burger Fresh',    desc:'Friss saláta, paradicsom, uborka',             price:4790, img:'img/point_burger_menu.jpg'},
+      // Köretek
+      { id:'krumpli',        cat:'koret',   name:'Point Krumpli',         desc:'Ropogósra sütött sült burgonya',               price:1290, img:'img/point_krumpli.jpg'   },
+      { id:'sajtos_fries',   cat:'koret',   name:'Nagyon Sajtos French Fries', desc:'Sült krumpli bőséges sajtszósszal',      price:2590, img:'img/sajtos_fries.jpg'    },
+      { id:'hagyma',         cat:'koret',   name:'Hagymakarika',          desc:'Ropogós rántott hagymakarika – 6 db',          price:1590, img:'img/hagymakarika.jpg'    },
+      { id:'point_falat',    cat:'koret',   name:'Point Falatok',         desc:'Csirkefalat, 6 db, ropogós bundában',          price:1950, img:'img/point_falatok.jpg'   },
+      { id:'angry_falat',    cat:'koret',   name:'Angry Falatok',         desc:'Fekete chili cheese falatok',                  price:2390, img:'img/angry_falatok.jpg'   },
+      { id:'inferno_falat',  cat:'koret',   name:'Inferno Falatok',       desc:'Habaneros chili 🌶️🌶️🌶️',                       price:2390, img:'img/inferno_falatok.jpg' },
+      // Szószok
+      { id:'titkos_szosz',   cat:'szosz',   name:'Titkos Szósz',          desc:'Házi recept',                                  price:500,  img:'img/titkos_szosz.jpg'    },
+      { id:'ketchup',        cat:'szosz',   name:'Ketchup',               desc:'',                                             price:500,  img:'img/ketchup.jpg'         },
+      { id:'majonez',        cat:'szosz',   name:'Majonéz',               desc:'',                                             price:500,  img:'img/majonez.jpg'         },
+      { id:'chili_szosz',    cat:'szosz',   name:'Chili',                 desc:'',                                             price:500,  img:'img/chili.jpg'           },
+      { id:'bbq',            cat:'szosz',   name:'BBQ',                   desc:'',                                             price:500,  img:'img/bbq.jpg'             },
+      { id:'sajtszosz',      cat:'szosz',   name:'Sajtszósz',             desc:'',                                             price:600,  img:'img/sajtszosz.jpg'       },
+      { id:'fokhagymas',     cat:'szosz',   name:'Fokhagymás majonéz',    desc:'',                                             price:600,  img:'img/fokhagymas_majonez.jpg'},
+      { id:'pikas_szosz',    cat:'szosz',   name:'Pikáns édes-savanyú szósz', desc:'',                                        price:600,  img:'img/pikas_szosz.jpg'     },
+      // Desszert
+      { id:'szufle',         cat:'desszert',name:'Point Szuflé',          desc:'Meleg csokiszuflé, tejszínhabbal',             price:1950, img:'img/szufle.jpg'          },
+      // Italok
+      { id:'pepsi',          cat:'ital',    name:'Pepsi',                 desc:'330 ml',                                       price:990,  img:'img/pepsi.jpg'           },
+      { id:'pepsi_zero',     cat:'ital',    name:'Pepsi Zero',            desc:'330 ml – cukormentes',                         price:990,  img:'img/pepsi_zero.jpg'      },
+      { id:'pepsi_twist',    cat:'ital',    name:'Pepsi Twist',           desc:'330 ml – citromos',                            price:990,  img:'img/pepsi_twist.jpg'     },
+      { id:'mtn_dew',        cat:'ital',    name:'Mountain Dew',          desc:'330 ml',                                       price:990,  img:'img/mountain_dew.jpg'    },
+      { id:'7up',            cat:'ital',    name:'7UP',                   desc:'330 ml',                                       price:990,  img:'img/7up.jpg'             },
+      { id:'mirinda',        cat:'ital',    name:'Mirinda',               desc:'330 ml',                                       price:990,  img:'img/mirinda.jpg'         },
+      { id:'dr_pepper',      cat:'ital',    name:'Dr Pepper',             desc:'330 ml',                                       price:990,  img:'img/dr_pepper.jpg'       },
+      { id:'asvanyviz',      cat:'ital',    name:'Szentkirályi Ásványvíz',desc:'500 ml',                                       price:900,  img:'img/asvanyviz.jpg'       },
+    ];
+
+    // ── State ────────────────────────────────────────────
+    let cart       = {};
+    let activeCat  = 'special';
+    let orderType  = 'takeaway';
+    let payMethod  = 'cash';
+    let dOrderType = 'takeaway';
+    let dPayMethod = 'cash';
+
+    const fmt = n => n.toLocaleString('hu-HU') + ' Ft';
+
+    // ── Render menu ──────────────────────────────────────
+    function renderMenu() {
+      const grid  = document.getElementById('items-grid');
+      const items = MENU.filter(i => i.cat === activeCat);
+      grid.innerHTML = items.map(item => `
+        <div class="item-card ${cart[item.id] ? 'in-cart' : ''}" id="icard-${item.id}">
+          <img src="${item.img}" alt="${item.name}" onerror="this.style.display='none'">
+          <div class="item-card-body">
+            <h4>${item.name}${item.badge ? ` <span class="special-badge">${item.badge}</span>` : ''}</h4>
+            ${item.desc ? `<p>${item.desc}</p>` : '<p style="height:.5rem"></p>'}
+            <div class="item-card-footer">
+              <span class="item-price">${fmt(item.price)}</span>
+              ${cart[item.id] ? `
+                <div class="item-qty-controls">
+                  <button class="qty-btn" onclick="window._chQty('${item.id}',-1)">−</button>
+                  <span class="qty-num">${cart[item.id]}</span>
+                  <button class="qty-btn" onclick="window._chQty('${item.id}',1)">+</button>
+                </div>` : `
+                <button class="item-add-btn" onclick="window._addItem('${item.id}')">+</button>`}
+            </div>
+          </div>
+        </div>`).join('');
+    }
+
+    window._addItem = id => { cart[id] = (cart[id]||0)+1; updateUI(); };
+    window._chQty  = (id, d) => { cart[id] = (cart[id]||0)+d; if(cart[id]<=0) delete cart[id]; updateUI(); };
+
+    // ── Cart helpers ─────────────────────────────────────
+    const cartItems = () => Object.entries(cart).map(([id,qty]) => {
+      const m = MENU.find(i=>i.id===id);
+      return {...m, qty, sub: m.price*qty};
+    });
+    const total = () => cartItems().reduce((s,i)=>s+i.sub,0);
+    const count = () => Object.values(cart).reduce((s,q)=>s+q,0);
+
+    function cartListHTML() {
+      return cartItems().map(i=>`
+        <div class="cart-item">
+          <img src="${i.img}" alt="${i.name}" class="cart-item-img" onerror="this.style.display='none'">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${i.name}</div>
+            <div class="cart-item-sub">${fmt(i.price)} × ${i.qty} = ${fmt(i.sub)}</div>
+          </div>
+          <div class="cart-item-controls">
+            <button class="cqb" onclick="window._chQty('${i.id}',-1)">−</button>
+            <span class="cqn">${i.qty}</span>
+            <button class="cqb" onclick="window._chQty('${i.id}',1)">+</button>
+          </div>
+        </div>`).join('');
+    }
+
+    // ── Update UI ────────────────────────────────────────
+    function updateUI() {
+      const c = count(), t = total(), items = cartItems();
+      const hasItems = c > 0;
+
+      // Sidebar
+      document.getElementById('cart-badge').textContent = c;
+      document.getElementById('cart-empty').style.display   = hasItems ? 'none' : 'flex';
+      document.getElementById('cart-list').innerHTML        = hasItems ? cartListHTML() : '';
+      document.getElementById('checkout-form').style.display= hasItems ? 'flex' : 'none';
+      if(hasItems) document.getElementById('total-display').textContent = fmt(t);
+
+      // Drawer
+      document.getElementById('drawer-list').innerHTML       = hasItems ? cartListHTML() : '';
+      document.getElementById('drawer-checkout').style.display= hasItems ? 'flex' : 'none';
+      if(hasItems) document.getElementById('drawer-total').textContent = fmt(t);
+
+      // FAB
+      const fab = document.getElementById('cart-fab');
+      fab.style.display = hasItems ? 'flex' : 'none';
+      if(hasItems) {
+        document.getElementById('fab-count').textContent = c;
+        document.getElementById('fab-total').textContent = fmt(t);
+      }
+
+      renderMenu();
+    }
+
+    // ── Category tabs ────────────────────────────────────
+    document.getElementById('cat-nav').addEventListener('click', e => {
+      const btn = e.target.closest('[data-cat]');
+      if(!btn) return;
+      activeCat = btn.dataset.cat;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderMenu();
+    });
+
+    // ── Order type toggle ────────────────────────────────
+    function setupTypeToggles(prefix, stateKey) {
+      ['takeaway','delivery'].forEach(type => {
+        const btn = document.getElementById(`${prefix}-${type}`);
+        if(!btn) return;
+        btn.addEventListener('click', () => {
+          if(prefix === 'tb') orderType = type; else dOrderType = type;
+          btn.closest('.toggle-group').querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          const addrGroup = document.getElementById(prefix==='tb' ? 'addr-group' : 'daddr-group');
+          addrGroup.style.display = type === 'delivery' ? 'block' : 'none';
+        });
+      });
+    }
+    setupTypeToggles('tb');
+    setupTypeToggles('dtb');
+
+    // ── Payment toggles ──────────────────────────────────
+    document.querySelectorAll('[data-pay]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const group = btn.closest('.toggle-group');
+        group.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        // determine which panel this is in
+        const inDrawer = btn.closest('#drawer-checkout');
+        if(inDrawer) dPayMethod = btn.dataset.pay;
+        else          payMethod  = btn.dataset.pay;
+      });
+    });
+
+    // ── Submit order ─────────────────────────────────────
+    async function doSubmit(isDrawer) {
+      const pfx    = isDrawer ? 'dc' : 'c';
+      const name   = document.getElementById(`${pfx}-name`).value.trim();
+      const phone  = document.getElementById(`${pfx}-phone`).value.trim();
+      const addrEl = document.getElementById(`${pfx}-address`);
+      const address= addrEl ? addrEl.value.trim() : '';
+      const notes  = document.getElementById(`${pfx}-notes`).value.trim();
+      const otype  = isDrawer ? dOrderType : orderType;
+      const pay    = isDrawer ? dPayMethod  : payMethod;
+      const btnId  = isDrawer ? 'dsubmit-btn' : 'submit-btn';
+
+      if(!name || !phone) { alert('Kérjük, add meg a neved és telefonszámod!'); return; }
+      if(otype === 'delivery' && !address) { alert('Kérjük, add meg a szállítási cím!'); return; }
+      if(count() === 0) return;
+
+      const btn = document.getElementById(btnId);
+      btn.disabled = true;
+      btn.textContent = 'Küldés...';
+
+      try {
+        const counterRef = doc(db, 'settings', 'orderCounter');
+        let num;
+        await runTransaction(db, async tx => {
+          const snap = await tx.get(counterRef);
+          num = snap.exists() ? snap.data().value + 1 : 1;
+          tx.set(counterRef, { value: num });
+        });
+
+        const orderNum = `SP-${String(num).padStart(3,'0')}`;
+
+        await addDoc(collection(db,'orders'), {
+          orderNumber: orderNum,
+          status:      'new',
+          type:        otype,
+          customer: {
+            name,
+            phone,
+            ...(otype === 'delivery' ? { address } : {})
+          },
+          payment: pay,
+          items:   cartItems().map(i=>({ id:i.id, name:i.name, desc:i.desc||'', cat:i.cat||'', price:i.price, qty:i.qty })),
+          total:   total(),
+          notes,
+          createdAt: serverTimestamp()
+        });
+
+        document.getElementById('success-num').textContent = orderNum;
+        document.getElementById('success-overlay').classList.add('open');
+        closeDrawer();
+        cart = {};
+        updateUI();
+        [`${pfx}-name`,`${pfx}-phone`,`${pfx}-notes`].forEach(id => {
+          const el = document.getElementById(id); if(el) el.value='';
+        });
+        if(addrEl) addrEl.value = '';
+      } catch(err) {
+        console.error(err);
+        alert('Hiba történt. Kérjük, próbáld újra!');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Rendelés leadása →';
+    }
+
+    document.getElementById('submit-btn').addEventListener('click',  () => doSubmit(false));
+    document.getElementById('dsubmit-btn').addEventListener('click', () => doSubmit(true));
+
+    // ── Mobile drawer ────────────────────────────────────
+    document.getElementById('cart-fab').addEventListener('click', () => {
+      document.getElementById('cart-drawer').classList.add('open');
+      document.getElementById('drawer-overlay').classList.add('open');
+    });
+
+    window.closeDrawer = () => {
+      document.getElementById('cart-drawer').classList.remove('open');
+      document.getElementById('drawer-overlay').classList.remove('open');
+    };
+
+    document.getElementById('drawer-overlay').addEventListener('click', closeDrawer);
+
+    // ── Success modal ────────────────────────────────────
+    window.closeSuccess = () => {
+      document.getElementById('success-overlay').classList.remove('open');
+    };
+
+    // ── Hamburger nav ────────────────────────────────────
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.getElementById('nav-links').classList.toggle('open');
+    });
+
+    // ── Init ─────────────────────────────────────────────
+    renderMenu();
+    updateUI();
+  </script>
+</body>
+</html>
