@@ -67,7 +67,9 @@
       overflow: hidden;
       transition: border-color 0.2s, transform 0.15s;
       cursor: pointer;
+      position: relative;
     }
+    .item-card.unavailable { cursor: not-allowed; pointer-events: none; }
     .item-card:hover { transform: translateY(-2px); border-color: var(--border2); }
     .item-card.in-cart { border-color: var(--pink); box-shadow: 0 0 16px rgba(255,31,155,0.1); }
 
@@ -206,24 +208,37 @@
     .cart-item-info { flex: 1; min-width: 0; }
     .cart-item-name { font-size: 0.82rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .cart-item-sub { font-size: 0.75rem; color: var(--pink); }
-    .cart-item-controls { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; }
+    .cart-item-controls {
+      display: flex; align-items: center; gap: 0;
+      flex-shrink: 0;
+      background: var(--dark3);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      overflow: hidden;
+    }
     .cqb {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      width: 22px;
-      height: 22px;
-      border-radius: 4px;
-      font-size: 0.85rem;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      width: 34px; height: 34px;
+      font-size: 1rem;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       transition: all 0.15s;
       font-family: 'Inter', sans-serif;
     }
-    .cqb:hover { border-color: var(--pink); color: var(--pink); }
-    .cqn { font-family: 'Oswald', sans-serif; font-size: 0.9rem; font-weight: 700; min-width: 16px; text-align: center; }
+    .cqb:hover { background: rgba(255,31,155,0.15); color: var(--pink); }
+    .cqb.del:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .cqn {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.95rem; font-weight: 700;
+      min-width: 30px; text-align: center;
+      color: #fff;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      padding: 0 0.2rem;
+      line-height: 34px;
+    }
 
     /* ── Checkout form ── */
     .checkout-form {
@@ -585,7 +600,7 @@
     //  5. A Firestore-ban hozz létre "orders" és "settings" gyűjteményeket
     // ═══════════════════════════════════════════════════════
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-    import { getFirestore, collection, addDoc, doc, runTransaction, serverTimestamp, setDoc, getDoc }
+    import { getFirestore, collection, addDoc, doc, runTransaction, serverTimestamp, setDoc, getDoc, onSnapshot }
       from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
     const firebaseConfig = {
@@ -601,19 +616,58 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
-    // ── Nyitvatartás ellenőrzés ──────────────────────────
-    function isOpen() {
+    // ── Nyitvatartás + Admin zárás ellenőrzés ──────────────
+    function isOpenByTime() {
       const now  = new Date();
-      const day  = now.getDay();          // 0=V, 1=H, ..., 6=Szo
+      const day  = now.getDay();
       const mins = now.getHours() * 60 + now.getMinutes();
-      const open = [1,2,3,4,6];          // H-Cs, Szo
-      return open.includes(day) && mins >= 660 && mins < 1140; // 11:00–19:00
+      const open = [1,2,3,4,6];
+      return open.includes(day) && mins >= 660 && mins < 1140;
     }
 
-    if (!isOpen()) {
-      document.getElementById('closed-state').style.display = 'block';
+    function showClosed(msg) {
+      const el = document.getElementById('closed-state');
+      el.innerHTML = `
+        <div style="text-align:center;padding:3rem 2rem;max-width:500px;margin:2rem auto;
+          background:var(--card);border:1px solid var(--border);border-radius:16px;">
+          <div style="font-size:3rem;margin-bottom:1rem;"><i class="fa-solid fa-lock"
+            style="color:var(--pink);"></i></div>
+          <h3 style="font-family:'Oswald',sans-serif;font-size:1.5rem;text-transform:uppercase;
+            color:#fff;margin-bottom:0.75rem;">Jelenleg zárva vagyunk</h3>
+          <p style="color:var(--muted);line-height:1.7;">${msg}</p>
+        </div>`;
+      el.style.display = 'block';
       document.getElementById('order-ui').style.display = 'none';
     }
+
+    // Alap időzóna ellenőrzés – ideiglenesen kikapcsolva teszteléshez
+    // if (!isOpenByTime()) {
+    //   showClosed('Az online rendelés csak nyitvatartási időben lehetséges.<br><strong style="color:#fff;">H–Cs, Szo: 11:00 – 19:00</strong><br>Péntek és vasárnap: zárva');
+    // }
+
+    // Firebase config ellenőrzés (admin zárás + készlet)
+    let inventory = {};
+    const cfgRef = doc(db,'settings','config');
+    const invRef = doc(db,'settings','inventory');
+
+    onSnapshot(cfgRef, snap => {
+      if(!snap.exists()) return;
+      const data = snap.data();
+      const adminClosed = data.ordersClosed ?? false;
+      const tempMsg     = data.tempCloseMsg || '';
+
+      if(adminClosed) {
+        showClosed(tempMsg || 'A rendelés fogadása átmenetileg szünetel.<br>Hamarosan visszatérünk!');
+      } else if(isOpenByTime()) {
+        document.getElementById('closed-state').style.display = 'none';
+        document.getElementById('order-ui').style.display = 'block';
+      }
+    });
+
+    onSnapshot(invRef, snap => {
+      inventory = snap.exists() ? (snap.data() || {}) : {};
+      renderMenu(); // újrarendereli a menüt az aktuális készlettel
+    });
 
     // ── Menü adatok ─────────────────────────────────────
     const MENU = [
@@ -674,15 +728,25 @@
     function renderMenu() {
       const grid  = document.getElementById('items-grid');
       const items = MENU.filter(i => i.cat === activeCat);
-      grid.innerHTML = items.map(item => `
-        <div class="item-card ${cart[item.id] ? 'in-cart' : ''}" id="icard-${item.id}">
+      grid.innerHTML = items.map(item => {
+        const available = inventory[item.id] !== false;
+        return `
+        <div class="item-card ${cart[item.id] ? 'in-cart' : ''} ${!available ? 'unavailable' : ''}"
+          id="icard-${item.id}" style="${!available ? 'opacity:0.5;' : ''}">
           <img src="${item.img}" alt="${item.name}" onerror="this.style.display='none'">
+          ${!available ? `<div style="position:absolute;inset:0;background:rgba(13,10,23,0.6);
+            display:flex;align-items:center;justify-content:center;border-radius:12px;z-index:2;">
+            <span style="background:var(--red);color:#fff;font-size:0.72rem;font-weight:700;
+              padding:0.3rem 0.85rem;border-radius:20px;text-transform:uppercase;letter-spacing:1px;">
+              Elfogyott
+            </span></div>` : ''}
           <div class="item-card-body">
             <h4>${item.name}${item.badge ? ` <span class="special-badge">${item.badge}</span>` : ''}</h4>
             ${item.desc ? `<p>${item.desc}</p>` : '<p style="height:.5rem"></p>'}
             <div class="item-card-footer">
               <span class="item-price">${fmt(item.price)}</span>
-              ${cart[item.id] ? `
+              ${!available ? `<span style="font-size:0.75rem;color:var(--red);">Elfogyott</span>` :
+                cart[item.id] ? `
                 <div class="item-qty-controls">
                   <button class="qty-btn" onclick="window._chQty('${item.id}',-1)">−</button>
                   <span class="qty-num">${cart[item.id]}</span>
@@ -691,7 +755,8 @@
                 <button class="item-add-btn" onclick="window._addItem('${item.id}')">+</button>`}
             </div>
           </div>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     }
 
     window._addItem = id => { cart[id] = (cart[id]||0)+1; updateUI(); };
@@ -714,9 +779,9 @@
             <div class="cart-item-sub">${fmt(i.price)} × ${i.qty} = ${fmt(i.sub)}</div>
           </div>
           <div class="cart-item-controls">
-            <button class="cqb" onclick="window._chQty('${i.id}',-1)">−</button>
+            <button class="cqb ${i.qty===1?'del':''}" onclick="window._chQty('${i.id}',-1)" title="${i.qty===1?'Törlés':'Csökkentés'}">${i.qty===1?'×':'−'}</button>
             <span class="cqn">${i.qty}</span>
-            <button class="cqb" onclick="window._chQty('${i.id}',1)">+</button>
+            <button class="cqb" onclick="window._chQty('${i.id}',1)" title="Növelés">+</button>
           </div>
         </div>`).join('');
     }

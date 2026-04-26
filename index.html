@@ -7,6 +7,206 @@
   <meta name="description" content="Smash Point burgerező Mosonmagyaróváron. Friss smash burgerek, ropogós köretek, különleges szószok. Bite into happiness with every burger." />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* ── Stats sáv ── */
+    .stats-bar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .stat-pill i { color: var(--pink); font-size: 0.95rem; }
+    .stat-pill strong { color: var(--text); font-weight: 600; }
+
+    /* ── Bestseller rács ── */
+    .bestseller-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .bs-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+      position: relative;
+    }
+    .bs-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--pink);
+      box-shadow: 0 16px 40px rgba(255,31,155,0.15);
+    }
+    .bs-card img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+    }
+    .bs-card-body { padding: 1.25rem; }
+    .bs-card h4 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+    .bs-card p { font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.5; }
+    .bs-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .bs-price {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--pink);
+    }
+    .bs-btn {
+      background: rgba(255,31,155,0.1);
+      border: 1px solid rgba(255,31,155,0.3);
+      color: var(--pink);
+      border-radius: 8px;
+      padding: 0.45rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .bs-btn:hover { background: var(--pink); color: #fff; }
+
+    .bs-badge {
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+      background: var(--pink);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    /* ── How it works ── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      position: relative;
+    }
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: 12.5%;
+      right: 12.5%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--pink), var(--purple));
+      opacity: 0.3;
+    }
+    .step-card {
+      text-align: center;
+      position: relative;
+    }
+    .step-num {
+      width: 56px; height: 56px;
+      background: var(--card);
+      border: 2px solid var(--pink);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--pink);
+      margin: 0 auto 1rem;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 0 20px rgba(255,31,155,0.2);
+    }
+    .step-card h4 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 0.4rem;
+    }
+    .step-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── Nyitvatartás banner ── */
+    .hours-banner {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      align-items: center;
+    }
+    .hours-banner-days {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .day-pill {
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .day-pill.open {
+      background: rgba(16,185,129,0.1);
+      border-color: rgba(16,185,129,0.4);
+      color: #6ee7b7;
+    }
+    .day-pill.closed {
+      opacity: 0.4;
+    }
+    .hours-banner-time {
+      text-align: right;
+      white-space: nowrap;
+    }
+    .hours-banner-time .time {
+      font-family: 'Oswald', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .hours-banner-time p { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .bestseller-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: repeat(2,1fr); }
+      .steps-grid::before { display: none; }
+      .hours-banner { grid-template-columns: 1fr; }
+      .hours-banner-time { text-align: left; }
+    }
+    @media (max-width: 480px) {
+      .stats-bar { gap: 1.5rem; padding: 0.75rem 1rem; }
+      .steps-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
@@ -24,42 +224,32 @@
     </ul>
   </nav>
 
+  <!-- STATS SÁV -->
+  <div class="stats-bar">
+    <div class="stat-pill"><i class="fa-solid fa-location-dot"></i><span>Liszt Ferenc utca 26., Mosonmagyaróvár</span></div>
+    <div class="stat-pill"><i class="fa-solid fa-clock"></i><strong>H–Cs, Szo:</strong><span>11:00 – 19:00</span></div>
+    <div class="stat-pill"><i class="fa-solid fa-motorcycle"></i><span>Házhozszállítás elérhető</span></div>
+    <div class="stat-pill"><i class="fa-solid fa-burger"></i><span>Smash burgerek</span></div>
+  </div>
+
   <!-- HERO -->
   <section class="hero">
     <div class="hero-bg-img"></div>
     <div class="hero-content">
       <img src="img/logo.jpg" alt="Smash Point logó" class="hero-logo-img" />
       <div class="hero-sub">Mosonmagyaróvár</div>
-      <p>Friss alapanyagok, ropogósra préselt húspogácsa, házi szószok – ez a smash burger élmény, ahogy lennie kell.</p>
+      <h1>SMASH<span>POINT</span></h1>
+      <p>Friss alapanyagok, ropogósra préselt húspogácsa, házi szószok –<br>ez a smash burger élmény, ahogy lennie kell.</p>
       <div class="hero-btns">
-        <a href="etlap.html" class="btn btn-primary">Étlap megtekintése</a>
-        <a href="rendeles.html" class="btn btn-outline">Rendelés →</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- MASCOT + CTA -->
-  <section style="background: var(--dark2); padding: 4rem 2rem;">
-    <div class="container">
-      <div class="mascot-section">
-        <img src="img/logo.jpg" alt="Smash Point mascot" class="mascot-img" />
-        <div class="mascot-text">
-          <h2>"Bite into happiness<br><span>with every burger."</span></h2>
-          <p>A smash burger technika lényege: a frissen formázott húspogácsát forró öntöttvas lapra tesszük, majd erőteljesen lepréseljük. Ez hozza létre a tökéletes ropogós kérget – a szaftosság és a textúra tökéletes kombinációja.</p>
-          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <a href="etlap.html" class="btn btn-primary">Teljes étlap</a>
-            <a href="rolunk.html" class="btn btn-outline">Rólunk →</a>
-          </div>
-        </div>
+        <a href="rendeles.html" class="btn btn-primary"><i class="fa-solid fa-bag-shopping"></i> Rendelés most</a>
+        <a href="etlap.html" class="btn btn-outline">Étlap megtekintése →</a>
       </div>
     </div>
   </section>
 
   <!-- FEATURES -->
-  <section>
+  <section style="background:var(--dark2);padding:4rem 2rem;">
     <div class="container">
-      <div class="section-label">Miért válassz minket</div>
-      <h2 class="section-title">Ez a <span>Smash Point</span></h2>
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon"><i class="fa-solid fa-drumstick-bite"></i></div>
@@ -85,78 +275,123 @@
     </div>
   </section>
 
-  <!-- MENU PREVIEW -->
-  <section style="background: var(--dark2); padding: 5rem 2rem;">
+  <!-- BESTSELLER -->
+  <section>
     <div class="container">
-      <div class="section-label">Amit kínálunk</div>
-      <h2 class="section-title">Népszerű <span>Fogásaink</span></h2>
-      <p class="section-desc">Klasszikus smash burgerektől a csípős különlegességekig – mindenkinek megvan a maga kedvence.</p>
+      <div class="section-label">Legjobban fogyó fogások</div>
+      <h2 class="section-title">Népszerű <span>Burgereink</span></h2>
+      <p class="section-desc">Ezeket rendelik a legtöbben – próbáld ki te is!</p>
 
-      <div class="menu-preview-grid">
-        <div class="menu-card">
-          <img src="img/smash_sajtburger.jpg" alt="Smash Sajtburger" class="menu-card-img" />
-          <div class="menu-card-body">
-            <div class="menu-card-info">
-              <h4>Smash Sajtburger</h4>
-              <p>A klasszikus – egyszerű, tökéletes</p>
+      <div class="bestseller-grid">
+        <div class="bs-card">
+          <span class="bs-badge">Legnépszerűbb</span>
+          <img src="img/smash_sajtburger.jpg" alt="Smash Sajtburger" />
+          <div class="bs-card-body">
+            <h4>Smash Sajtburger</h4>
+            <p>1 húspogácsa, olvasztott cheddar, titkos szósz – a klasszikus</p>
+            <div class="bs-card-footer">
+              <span class="bs-price">3 190 Ft</span>
+              <a href="rendeles.html" class="bs-btn">Rendelem →</a>
             </div>
-            <div class="menu-card-price">3 190 Ft</div>
           </div>
         </div>
-        <div class="menu-card">
-          <img src="img/point_burger.jpg" alt="Point Burger" class="menu-card-img" />
-          <div class="menu-card-body">
-            <div class="menu-card-info">
-              <h4>Point Burger</h4>
-              <p>Dupla húspogácsa, dupla élvezet</p>
+
+        <div class="bs-card">
+          <img src="img/point_burger.jpg" alt="Point Burger" />
+          <div class="bs-card-body">
+            <h4>Point Burger</h4>
+            <p>2 húspogácsa – az igazi smash élmény, dupla adagban</p>
+            <div class="bs-card-footer">
+              <span class="bs-price">3 990 Ft</span>
+              <a href="rendeles.html" class="bs-btn">Rendelem →</a>
             </div>
-            <div class="menu-card-price">3 990 Ft</div>
           </div>
         </div>
-        <div class="menu-card">
-          <img src="img/angry_burger_menu.jpg" alt="Angry Point Burger" class="menu-card-img" />
-          <div class="menu-card-body">
-            <div class="menu-card-info">
-              <h4>Angry Point Burger</h4>
-              <p>Csirke, fekete chili – nem való gyáváknak</p>
+
+        <div class="bs-card">
+          <img src="img/sef_kedvence.jpg" alt="Séf Kedvence" />
+          <div class="bs-card-body">
+            <h4>Séf Kedvence</h4>
+            <p>Bacon, BBQ szósz, Buldak szósz – a séf személyes kedvence</p>
+            <div class="bs-card-footer">
+              <span class="bs-price">5 590 Ft</span>
+              <a href="rendeles.html" class="bs-btn">Rendelem →</a>
             </div>
-            <div class="menu-card-price">4 450 Ft</div>
           </div>
         </div>
-        <div class="menu-card">
-          <img src="img/tripla_burger.jpg" alt="Tripla Point Burger" class="menu-card-img" />
-          <div class="menu-card-body">
-            <div class="menu-card-info">
-              <h4>Tripla Point Burger</h4>
-              <p>Három pogácsa igazi éheseknek</p>
+
+        <div class="bs-card">
+          <img src="img/angry_burger_menu.jpg" alt="Angry Point Burger" />
+          <div class="bs-card-body">
+            <h4>Angry Point Burger</h4>
+            <p>Csirke + fekete chili – nem való gyáváknak</p>
+            <div class="bs-card-footer">
+              <span class="bs-price">4 450 Ft</span>
+              <a href="rendeles.html" class="bs-btn">Rendelem →</a>
             </div>
-            <div class="menu-card-price">4 890 Ft</div>
           </div>
         </div>
-        <div class="menu-card">
-          <img src="img/gold_smash.jpg" alt="Gold Smash" class="menu-card-img" />
-          <div class="menu-card-body">
-            <div class="menu-card-info">
-              <h4>Gold Smash</h4>
-              <p>Rántott cheddar, chutney – prémium</p>
+
+        <div class="bs-card">
+          <span class="bs-badge" style="background:var(--purple);">Gold</span>
+          <img src="img/gold_smash.jpg" alt="Gold Smash" />
+          <div class="bs-card-body">
+            <h4>Gold Smash</h4>
+            <p>Rántott cheddar sajt, chutney – prémium különlegesség</p>
+            <div class="bs-card-footer">
+              <span class="bs-price">6 350 Ft</span>
+              <a href="rendeles.html" class="bs-btn">Rendelem →</a>
             </div>
-            <div class="menu-card-price">6 350 Ft</div>
           </div>
         </div>
-        <div class="menu-card">
-          <img src="img/sef_kedvence.jpg" alt="Séf Kedvence" class="menu-card-img" />
-          <div class="menu-card-body">
-            <div class="menu-card-info">
-              <h4>Séf Kedvence</h4>
-              <p>Bacon, BBQ, Buldak szósz</p>
+
+        <div class="bs-card">
+          <img src="img/tripla_burger.jpg" alt="Tripla Point Burger" />
+          <div class="bs-card-body">
+            <h4>Tripla Point Burger</h4>
+            <p>3 húspogácsa igazi éheseknek – komoly kihívás</p>
+            <div class="bs-card-footer">
+              <span class="bs-price">4 890 Ft</span>
+              <a href="rendeles.html" class="bs-btn">Rendelem →</a>
             </div>
-            <div class="menu-card-price">5 590 Ft</div>
           </div>
         </div>
       </div>
 
-      <div style="text-align: center; margin-top: 2.5rem;">
-        <a href="etlap.html" class="btn btn-primary">Teljes étlap megtekintése →</a>
+      <div style="text-align:center;margin-top:2.5rem;">
+        <a href="etlap.html" class="btn btn-outline">Teljes étlap megtekintése →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- NYITVATARTÁS -->
+  <section>
+    <div class="container">
+      <div class="section-label">Mikor találsz minket</div>
+      <h2 class="section-title" style="margin-bottom:2rem;">Nyitva<span>tartás</span></h2>
+
+      <div class="hours-banner">
+        <div>
+          <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Nyitott napok</p>
+          <div class="hours-banner-days">
+            <span class="day-pill open">Hétfő</span>
+            <span class="day-pill open">Kedd</span>
+            <span class="day-pill open">Szerda</span>
+            <span class="day-pill open">Csütörtök</span>
+            <span class="day-pill closed">Péntek</span>
+            <span class="day-pill open">Szombat</span>
+            <span class="day-pill closed">Vasárnap</span>
+          </div>
+          <p style="font-size:0.78rem;color:var(--muted);margin-top:0.75rem;">
+            <i class="fa-solid fa-location-dot" style="color:var(--pink)"></i>
+            Liszt Ferenc utca 26., 9200 Mosonmagyaróvár
+          </p>
+        </div>
+        <div class="hours-banner-time">
+          <div class="time">11:00 – 19:00</div>
+          <p>Nyitvatartás (nyitott napokon)</p>
+          <a href="kapcsolat.html" class="btn btn-outline" style="margin-top:1rem;display:inline-block;font-size:0.85rem;padding:0.6rem 1.25rem;">Elérhetőségek →</a>
+        </div>
       </div>
     </div>
   </section>
@@ -169,7 +404,6 @@
       <li><a href="etlap.html">Étlap</a></li>
       <li><a href="rolunk.html">Rólunk</a></li>
       <li><a href="kapcsolat.html">Kapcsolat</a></li>
-
     </ul>
     <div class="footer-bottom">
       <p>© 2025 Smash Point – Liszt Ferenc utca 26., 9200 Mosonmagyaróvár</p>
@@ -177,11 +411,9 @@
   </footer>
 
   <script>
-    const btn = document.getElementById('hamburger');
-    const links = document.getElementById('nav-links');
-    btn.addEventListener('click', () => links.classList.toggle('open'));
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.getElementById('nav-links').classList.toggle('open');
+    });
   </script>
-
-
 </body>
 </html>

@@ -4,9 +4,397 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Étlap – Smash Point Mosonmagyaróvár</title>
-  <meta name="description" content="Smash Point teljes étlapja: burgerek, köretek, szószok, desszert és italok. Smash burgerek Mosonmagyaróváron." />
+  <meta name="description" content="Smash Point teljes étlapja: burgerek, köretek, szószok, desszert és italok." />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* ── Kereső sáv ────────────────────────────────── */
+    .search-bar {
+      position: sticky;
+      top: 68px;
+      z-index: 51;
+      background: rgba(13,10,23,0.97);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .search-input-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 480px;
+    }
+    .search-input-wrap i {
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 0.9rem;
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 0.9rem 0.6rem 2.4rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--pink); }
+    .search-input::placeholder { color: var(--muted); }
+    .search-clear {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: none;
+    }
+    .search-clear.show { display: block; }
+    .search-clear:hover { color: var(--pink); }
+    .search-results-count {
+      font-size: 0.8rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .search-results-count span { color: var(--pink); font-weight: 700; }
+
+    /* Keresési eredmény highlight */
+    .search-highlight { color: var(--pink); font-weight: 700; }
+
+    /* Ha nincs találat */
+    .no-results {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--muted);
+      display: none;
+    }
+    .no-results i { font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.3; }
+
+    /* ── Kategória nav ─────────────────────────────── */
+    .cat-nav {
+      position: sticky;
+      top: 118px;
+      z-index: 50;
+      background: rgba(13,10,23,0.96);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      transition: top 0.2s;
+    }
+    .cat-nav::-webkit-scrollbar { display: none; }
+    .cat-nav.search-active { top: 68px; }
+
+    .cat-tab {
+      padding: 1rem 1.5rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      text-decoration: none;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .cat-tab:hover { color: var(--text); }
+    .cat-tab.active { color: var(--pink); border-bottom-color: var(--pink); }
+
+    /* ── Szekció ───────────────────────────────────── */
+    .etlap-section {
+      padding: 4rem 0;
+    }
+    .etlap-section.dark {
+      background: var(--dark2);
+    }
+    .etlap-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .section-hdr {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-hdr-icon {
+      width: 44px; height: 44px;
+      background: rgba(255,31,155,0.12);
+      border: 1px solid rgba(255,31,155,0.3);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      color: var(--pink);
+      flex-shrink: 0;
+    }
+    .section-hdr h2 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .section-hdr-count {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+    }
+
+    /* ── Kártya grid ───────────────────────────────── */
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .item-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .item-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--pink);
+      box-shadow: 0 12px 36px rgba(255,31,155,0.12);
+    }
+
+    .item-card-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+    }
+    .item-card-img-placeholder {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: var(--card2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: var(--border2);
+    }
+
+    .item-card-body {
+      padding: 1.1rem 1.25rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .item-card-badges {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .item-card h4 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 0.4rem;
+      line-height: 1.2;
+    }
+
+    .item-card p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+      flex: 1;
+      margin-bottom: 1rem;
+    }
+
+    .item-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .item-price {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--pink);
+    }
+
+    .item-order-btn {
+      background: rgba(255,31,155,0.1);
+      border: 1px solid rgba(255,31,155,0.3);
+      color: var(--pink);
+      border-radius: 8px;
+      padding: 0.4rem 0.85rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .item-order-btn:hover {
+      background: var(--pink);
+      color: #fff;
+      border-color: var(--pink);
+    }
+
+    /* ── Menü összeállítások ──────────────────────── */
+    .combo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .combo-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .combo-card:hover { border-color: var(--pink); transform: translateX(4px); }
+
+    .combo-img {
+      width: 72px; height: 72px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .combo-info { flex: 1; min-width: 0; }
+    .combo-info h4 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 0.2rem;
+    }
+    .combo-info p { font-size: 0.75rem; color: var(--muted); }
+    .combo-price {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--pink);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── Szószok grid ─────────────────────────────── */
+    .sauce-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    .sauce-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .sauce-card:hover { border-color: var(--pink); transform: translateY(-3px); }
+    .sauce-card img {
+      width: 100%; aspect-ratio: 1;
+      object-fit: cover;
+    }
+    .sauce-card-body { padding: 0.75rem; }
+    .sauce-card h4 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 0.2rem;
+    }
+    .sauce-price {
+      font-size: 0.82rem;
+      color: var(--pink);
+      font-weight: 700;
+    }
+
+    /* ── Italok ───────────────────────────────────── */
+    .drink-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .drink-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .drink-card:hover { border-color: var(--purple); transform: translateY(-3px); }
+    .drink-card img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+    .drink-card-body { padding: 0.75rem; }
+    .drink-card h4 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 0.15rem;
+    }
+    .drink-card p { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.3rem; }
+    .drink-price { font-size: 0.85rem; color: var(--pink); font-weight: 700; }
+
+    /* ── Responsive ───────────────────────────────── */
+    @media (max-width: 1024px) {
+      .items-grid { grid-template-columns: repeat(2, 1fr); }
+      .sauce-grid  { grid-template-columns: repeat(3, 1fr); }
+      .drink-grid  { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .menu-section { padding: 3rem 1rem; }
+      .items-grid  { grid-template-columns: 1fr; }
+      .combo-grid  { grid-template-columns: 1fr; }
+      .sauce-grid  { grid-template-columns: repeat(2, 1fr); }
+      .drink-grid  { grid-template-columns: repeat(2, 1fr); }
+      .cat-tab { padding: 0.85rem 1rem; font-size: 0.75rem; }
+    }
+  </style>
 </head>
 <body>
 
@@ -24,452 +412,382 @@
     </ul>
   </nav>
 
+  <!-- PAGE HERO -->
   <div class="page-hero">
     <div class="section-label">Teljes kínálatunk</div>
     <h1 class="section-title">ÉTLA<span>PUNK</span></h1>
-    <p style="color: var(--muted); max-width: 500px; margin: 0 auto;">Friss, minőségi alapanyagok – minden nap. Válassz kedvedre!</p>
+    <p style="color:var(--muted);max-width:480px;margin:0 auto;">Friss alapanyagok, autentikus smash technika – minden nap.</p>
   </div>
 
-  <section>
-    <div class="container">
+  <!-- KERESŐ -->
+  <div class="search-bar" id="search-bar">
+    <div class="search-input-wrap">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="search" class="search-input" id="search-input" placeholder="Keresés az étlapon..." autocomplete="off" />
+      <button class="search-clear" id="search-clear" title="Törlés">×</button>
+    </div>
+    <div class="search-results-count" id="search-count"></div>
+  </div>
 
-      <!-- KÜLÖNLEGES AJÁNLATOK -->
-      <div class="menu-section">
-        <div class="menu-section-title"><i class="fa-solid fa-star"></i> Különleges Ajánlatok</div>
-        <div class="menu-items">
-          <div class="menu-item">
-            <img src="img/sef_kedvence.jpg" alt="Séf Kedvence" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Séf Kedvence <span class="special-badge">AJÁNLOTT</span></h4>
-                <p>Bacon, BBQ szósz, Buldak szósz – a séf személyes kedvence</p>
-              </div>
-              <div class="menu-item-price">5 590 Ft</div>
-            </div>
+  <!-- KATEGÓRIA NAV -->
+  <nav class="cat-nav" id="cat-nav">
+    <a href="#special"  class="cat-tab active"><i class="fa-solid fa-star"></i> Különleges</a>
+    <a href="#menus"    class="cat-tab"><i class="fa-solid fa-list"></i> Menük</a>
+    <a href="#burgers"  class="cat-tab"><i class="fa-solid fa-burger"></i> Burgerek</a>
+    <a href="#sides"    class="cat-tab"><i class="fa-solid fa-utensils"></i> Köretek</a>
+    <a href="#sauces"   class="cat-tab"><i class="fa-solid fa-droplet"></i> Szószok</a>
+    <a href="#dessert"  class="cat-tab"><i class="fa-solid fa-cookie-bite"></i> Desszert</a>
+    <a href="#drinks"   class="cat-tab"><i class="fa-solid fa-glass-water"></i> Italok</a>
+  </nav>
+
+  <!-- KÜLÖNLEGES AJÁNLATOK -->
+  <div id="special" class="etlap-section"><div class="etlap-inner">
+    <div class="section-hdr">
+      <div class="section-hdr-icon"><i class="fa-solid fa-star"></i></div>
+      <h2>Különleges Ajánlatok</h2>
+      <span class="section-hdr-count">3 fogás</span>
+    </div>
+    <div class="items-grid">
+
+      <div class="item-card">
+        <img src="img/sef_kedvence.jpg" alt="Séf Kedvence" class="item-card-img" />
+        <div class="item-card-body">
+          <div class="item-card-badges">
+            <span class="special-badge">AJÁNLOTT</span>
           </div>
-          <div class="menu-item">
-            <img src="img/gold_smash.jpg" alt="Gold Smash" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Gold Smash <span class="special-badge">PRÉMIUM</span></h4>
-                <p>Rántott cheddar sajt, chutney – aranyos különlegesség</p>
-              </div>
-              <div class="menu-item-price">6 350 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/mystery_burger.jpg" alt="Smash Mystery Burger" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Smash Mystery Burger <span class="special-badge">LIMITÁLT</span></h4>
-                <p>Titokzatos limitált verzió – minden héten más meglepetés vár</p>
-              </div>
-              <div class="menu-item-price">6 490 Ft</div>
-            </div>
+          <h4>Séf Kedvence</h4>
+          <p>Bacon, BBQ szósz, Buldak szósz – a séf személyes kedvence</p>
+          <div class="item-card-footer">
+            <span class="item-price">5 590 Ft</span>
+            <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
           </div>
         </div>
       </div>
 
-      <!-- MENÜ ÖSSZEÁLLÍTÁSOK -->
-      <div class="menu-section">
-        <div class="menu-section-title"><i class="fa-solid fa-list"></i> Menü Összeállítások</div>
-        <p style="color: var(--muted); font-size: 0.88rem; margin-bottom: 1.2rem;">A menük burgerből + köretből + italból állnak.</p>
-        <div class="menu-items">
-          <div class="menu-item">
-            <img src="img/angry_burger_menu.jpg" alt="Point Burger 1 Húsos Menü" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Point Burger 1 Húsos Menü</h4>
-                <p>1 húspogácsás burger + köret + ital</p>
-              </div>
-              <div class="menu-item-price">5 250 Ft</div>
-            </div>
+      <div class="item-card">
+        <img src="img/gold_smash.jpg" alt="Gold Smash" class="item-card-img" />
+        <div class="item-card-body">
+          <div class="item-card-badges">
+            <span class="special-badge">PRÉMIUM</span>
           </div>
-          <div class="menu-item">
-            <img src="img/point_burger_menu.jpg" alt="Point Burger Menü" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Point Burger Menü</h4>
-                <p>2 húspogácsás burger + köret + ital</p>
-              </div>
-              <div class="menu-item-price">5 590 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/tripla_burger.jpg" alt="Tripla Point Burger Menü" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Tripla Point Burger Menü</h4>
-                <p>3 húspogácsás burger + köret + ital</p>
-              </div>
-              <div class="menu-item-price">6 500 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/hawai_burger_menu.jpg" alt="Hawai Point Burger Menü" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Hawai Point Burger Menü</h4>
-                <p>Csirke, ananász + köret + ital</p>
-              </div>
-              <div class="menu-item-price">5 870 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/angry_burger_menu.jpg" alt="Angry Point Burger Menü" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Angry Point Burger Menü</h4>
-                <p>Csirke, fekete chili + köret + ital</p>
-              </div>
-              <div class="menu-item-price">6 050 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/point_falatok.jpg" alt="Point Falatok Menü" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Point Falatok Menü</h4>
-                <p>Csirkefalatok (6 db) + köret + ital</p>
-              </div>
-              <div class="menu-item-price">3 450 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/angry_falatok.jpg" alt="Angry Falatok Menü" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Angry Falatok Menü</h4>
-                <p>Fekete chili cheese falatok + köret + ital</p>
-              </div>
-              <div class="menu-item-price">4 450 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/point_burger_menu.jpg" alt="Point Burger Fresh Menü" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Point Burger Fresh Menü</h4>
-                <p>Saláta, paradicsom, uborka + köret + ital</p>
-              </div>
-              <div class="menu-item-price">6 190 Ft</div>
-            </div>
+          <h4>Gold Smash</h4>
+          <p>Rántott cheddar sajt, chutney – aranyos különlegesség</p>
+          <div class="item-card-footer">
+            <span class="item-price">6 350 Ft</span>
+            <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
           </div>
         </div>
       </div>
 
-      <!-- BURGEREK -->
-      <div class="menu-section">
-        <div class="menu-section-title"><i class="fa-solid fa-burger"></i> Burgerek</div>
-        <div class="menu-items">
-          <div class="menu-item">
-            <img src="img/smash_sajtburger.jpg" alt="Smash Sajtburger" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Smash Sajtburger</h4>
-                <p>A klasszikus – 1 húspogácsa, olvasztott cheddar, titkos szósz</p>
-              </div>
-              <div class="menu-item-price">3 190 Ft</div>
-            </div>
+      <div class="item-card">
+        <img src="img/mystery_burger.jpg" alt="Smash Mystery Burger" class="item-card-img" />
+        <div class="item-card-body">
+          <div class="item-card-badges">
+            <span class="special-badge">LIMITÁLT</span>
           </div>
-          <div class="menu-item">
-            <img src="img/smash_sajtburger.jpg" alt="Dupla Smash Sajtburger" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Dupla Smash Sajtburger</h4>
-                <p>Dupla húspogácsa, dupla cheddar, dupla élmény</p>
-              </div>
-              <div class="menu-item-price">3 890 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/point_burger.jpg" alt="Point Burger 1 Húsos" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Point Burger 1 Húsos</h4>
-                <p>Szaftos 1 húspogácsás smash burger</p>
-              </div>
-              <div class="menu-item-price">3 590 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/point_burger.jpg" alt="Point Burger" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Point Burger</h4>
-                <p>2 húspogácsa – az igazi smash élmény</p>
-              </div>
-              <div class="menu-item-price">3 990 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/tripla_burger.jpg" alt="Tripla Point Burger" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Tripla Point Burger</h4>
-                <p>3 húspogácsa igazi éheseknek – komoly kihívás</p>
-              </div>
-              <div class="menu-item-price">4 890 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/hawai_burger_menu.jpg" alt="Hawai Point Burger" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Hawai Point Burger</h4>
-                <p>Csirke + ananász – édes-pikáns trópusi kombó</p>
-              </div>
-              <div class="menu-item-price">4 290 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/angry_burger_menu.jpg" alt="Angry Point Burger" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Angry Point Burger</h4>
-                <p>Csirke + fekete chili – csak erős gyomrúaknak!</p>
-              </div>
-              <div class="menu-item-price">4 450 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/point_burger.jpg" alt="Chili Cheese" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Chili Cheese</h4>
-                <p>2 húspogácsa, 2 réteg cheddar – extra sajtos, extra csípős</p>
-              </div>
-              <div class="menu-item-price">4 790 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/point_burger_menu.jpg" alt="Point Burger Fresh" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Point Burger Fresh</h4>
-                <p>Friss saláta, paradicsom, uborka – könnyedebb változat</p>
-              </div>
-              <div class="menu-item-price">4 790 Ft</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- KÖRETEK -->
-      <div class="menu-section">
-        <div class="menu-section-title"><i class="fa-solid fa-utensils"></i> Köretek</div>
-        <div class="menu-items">
-          <div class="menu-item">
-            <img src="img/point_krumpli.jpg" alt="Point Krumpli" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Point Krumpli</h4>
-                <p>Ropogósra sütött sült burgonya</p>
-              </div>
-              <div class="menu-item-price">1 290 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/sajtos_fries.jpg" alt="Nagyon Sajtos French Fries" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Nagyon Sajtos French Fries</h4>
-                <p>Sült krumpli bőséges sajtszósszal meglocsolva</p>
-              </div>
-              <div class="menu-item-price">2 590 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/hagymakarika.jpg" alt="Hagymakarika" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Hagymakarika</h4>
-                <p>Ropogós rántott hagymakarika – 6 darab</p>
-              </div>
-              <div class="menu-item-price">1 590 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/point_falatok.jpg" alt="Point Falatok" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Point Falatok</h4>
-                <p>Csirkefalat – 6 darab, ropogós bundában</p>
-              </div>
-              <div class="menu-item-price">1 950 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/angry_falatok.jpg" alt="Angry Falatok" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Angry Falatok</h4>
-                <p>Fekete chili cheese falatok – csípős, sajtszószos</p>
-              </div>
-              <div class="menu-item-price">2 390 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/inferno_falatok.jpg" alt="Inferno Falatok" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Inferno Falatok</h4>
-                <p>Habaneros chili – csak a legbátrabbaknak </p>
-              </div>
-              <div class="menu-item-price">2 390 Ft</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SZÓSZOK -->
-      <div class="menu-section">
-        <div class="menu-section-title"><i class="fa-solid fa-droplet"></i> Mártogatós Szószok</div>
-        <div class="menu-items">
-          <div class="menu-item">
-            <img src="img/titkos_szosz.jpg" alt="Titkos Szósz" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Titkos Szósz <span class="special-badge">HÁZI</span></h4>
-                <p>A mi saját receptünk – senki más nem tudja</p>
-              </div>
-              <div class="menu-item-price">500 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/ketchup.jpg" alt="Ketchup" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Ketchup</h4></div>
-              <div class="menu-item-price">500 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/majonez.jpg" alt="Majonéz" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Majonéz</h4></div>
-              <div class="menu-item-price">500 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/chili.jpg" alt="Chili" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Chili</h4></div>
-              <div class="menu-item-price">500 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/bbq.jpg" alt="BBQ" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>BBQ</h4></div>
-              <div class="menu-item-price">500 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/sajtszosz.jpg" alt="Sajtszósz" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Sajtszósz</h4></div>
-              <div class="menu-item-price">600 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/fokhagymas_majonez.jpg" alt="Fokhagymás majonéz" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Fokhagymás majonéz</h4></div>
-              <div class="menu-item-price">600 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/pikas_szosz.jpg" alt="Pikáns édes-savanyú szósz" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Pikáns édes-savanyú szósz</h4></div>
-              <div class="menu-item-price">600 Ft</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- DESSZERT -->
-      <div class="menu-section">
-        <div class="menu-section-title"><i class="fa-solid fa-cookie-bite"></i> Desszert</div>
-        <div class="menu-items">
-          <div class="menu-item">
-            <img src="img/szufle.jpg" alt="Point Szuflé" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left">
-                <h4>Point Szuflé</h4>
-                <p>Meleg csokiszuflé, tejszínhabbal – tökéletes lezárás</p>
-              </div>
-              <div class="menu-item-price">1 950 Ft</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ITALOK -->
-      <div class="menu-section">
-        <div class="menu-section-title"><i class="fa-solid fa-glass-water"></i> Italok</div>
-        <div class="menu-items">
-          <div class="menu-item">
-            <img src="img/pepsi.jpg" alt="Pepsi" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Pepsi</h4><p>330 ml</p></div>
-              <div class="menu-item-price">990 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/pepsi_zero.jpg" alt="Pepsi Zero" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Pepsi Zero</h4><p>330 ml – cukormentes</p></div>
-              <div class="menu-item-price">990 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/pepsi_twist.jpg" alt="Pepsi Twist" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Pepsi Twist</h4><p>330 ml – citromos</p></div>
-              <div class="menu-item-price">990 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/mountain_dew.jpg" alt="Mountain Dew" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Mountain Dew</h4><p>330 ml</p></div>
-              <div class="menu-item-price">990 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/7up.jpg" alt="7UP" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>7UP</h4><p>330 ml</p></div>
-              <div class="menu-item-price">990 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/mirinda.jpg" alt="Mirinda" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Mirinda</h4><p>330 ml</p></div>
-              <div class="menu-item-price">990 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/dr_pepper.jpg" alt="Dr Pepper" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Dr Pepper</h4><p>330 ml</p></div>
-              <div class="menu-item-price">990 Ft</div>
-            </div>
-          </div>
-          <div class="menu-item">
-            <img src="img/asvanyviz.jpg" alt="Szentkirályi Ásványvíz" class="menu-item-img" />
-            <div class="menu-item-body">
-              <div class="menu-item-left"><h4>Szentkirályi Ásványvíz</h4><p>500 ml</p></div>
-              <div class="menu-item-price">900 Ft</div>
-            </div>
+          <h4>Smash Mystery Burger</h4>
+          <p>Titokzatos limitált verzió – minden héten más meglepetés vár</p>
+          <div class="item-card-footer">
+            <span class="item-price">6 490 Ft</span>
+            <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
           </div>
         </div>
       </div>
 
     </div>
-  </section>
+  </div>
+
+  <!-- MENÜ ÖSSZEÁLLÍTÁSOK -->
+  <div id="menus" class="etlap-section dark">
+    <div class="etlap-inner">
+      <div class="section-hdr">
+        <div class="section-hdr-icon"><i class="fa-solid fa-list"></i></div>
+        <div>
+          <h2>Menü Összeállítások</h2>
+          <p style="font-size:0.78rem;color:var(--muted);margin-top:0.2rem;">Burger + köret + ital egy áron</p>
+        </div>
+        <span class="section-hdr-count">8 menü</span>
+      </div>
+      <div class="combo-grid">
+        <div class="combo-card"><img src="img/angry_burger_menu.jpg" alt="" class="combo-img"><div class="combo-info"><h4>Point Burger 1 Húsos Menü</h4><p>1 húspogácsás burger + köret + ital</p></div><div class="combo-price">5 250 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+        <div class="combo-card"><img src="img/point_burger_menu.jpg" alt="" class="combo-img"><div class="combo-info"><h4>Point Burger Menü</h4><p>2 húspogácsás burger + köret + ital</p></div><div class="combo-price">5 590 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+        <div class="combo-card"><img src="img/tripla_burger.jpg" alt="" class="combo-img"><div class="combo-info"><h4>Tripla Point Burger Menü</h4><p>3 húspogácsás burger + köret + ital</p></div><div class="combo-price">6 500 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+        <div class="combo-card"><img src="img/hawai_burger_menu.jpg" alt="" class="combo-img"><div class="combo-info"><h4>Hawai Point Burger Menü</h4><p>Csirke, ananász + köret + ital</p></div><div class="combo-price">5 870 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+        <div class="combo-card"><img src="img/angry_burger_menu.jpg" alt="" class="combo-img"><div class="combo-info"><h4>Angry Point Burger Menü</h4><p>Csirke, fekete chili + köret + ital</p></div><div class="combo-price">6 050 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+        <div class="combo-card"><img src="img/point_falatok.jpg" alt="" class="combo-img"><div class="combo-info"><h4>Point Falatok Menü</h4><p>Csirkefalatok (6 db) + köret + ital</p></div><div class="combo-price">3 450 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+        <div class="combo-card"><img src="img/angry_falatok.jpg" alt="" class="combo-img"><div class="combo-info"><h4>Angry Falatok Menü</h4><p>Fekete chili cheese falatok + köret + ital</p></div><div class="combo-price">4 450 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+        <div class="combo-card"><img src="img/point_burger_menu.jpg" alt="" class="combo-img"><div class="combo-info"><h4>Point Burger Fresh Menü</h4><p>Saláta, paradicsom, uborka + köret + ital</p></div><div class="combo-price">6 190 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BURGEREK -->
+  <div id="burgers" class="etlap-section"><div class="etlap-inner">
+    <div class="section-hdr">
+      <div class="section-hdr-icon"><i class="fa-solid fa-burger"></i></div>
+      <h2>Burgerek</h2>
+      <span class="section-hdr-count">9 féle</span>
+    </div>
+    <div class="items-grid">
+
+      <div class="item-card">
+        <img src="img/smash_sajtburger.jpg" alt="Smash Sajtburger" class="item-card-img" />
+        <div class="item-card-body">
+          <h4>Smash Sajtburger</h4>
+          <p>1 húspogácsa, olvasztott cheddar, titkos szósz</p>
+          <div class="item-card-footer">
+            <span class="item-price">3 190 Ft</span>
+            <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="item-card">
+        <img src="img/smash_sajtburger.jpg" alt="Dupla Smash Sajtburger" class="item-card-img" />
+        <div class="item-card-body">
+          <h4>Dupla Smash Sajtburger</h4>
+          <p>Dupla húspogácsa, dupla cheddar</p>
+          <div class="item-card-footer">
+            <span class="item-price">3 890 Ft</span>
+            <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="item-card">
+        <img src="img/point_burger.jpg" alt="Point Burger 1 Húsos" class="item-card-img" />
+        <div class="item-card-body">
+          <h4>Point Burger 1 Húsos</h4>
+          <p>Szaftos 1 húspogácsás smash burger</p>
+          <div class="item-card-footer">
+            <span class="item-price">3 590 Ft</span>
+            <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="item-card">
+        <img src="img/point_burger.jpg" alt="Point Burger" class="item-card-img" />
+        <div class="item-card-body">
+          <h4>Point Burger</h4>
+          <p>2 húspogácsa – az igazi smash élmény</p>
+          <div class="item-card-footer">
+            <span class="item-price">3 990 Ft</span>
+            <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="item-card">
+        <img src="img/tripla_burger.jpg" alt="Tripla Point Burger" class="item-card-img" />
+        <div class="item-card-body">
+          <h4>Tripla Point Burger</h4>
+          <p>3 húspogácsa igazi éheseknek</p>
+          <div class="item-card-footer">
+            <span class="item-price">4 890 Ft</span>
+            <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="item-card">
+        <img src="img/hawai_burger_menu.jpg" alt="Hawai Point Burger" class="item-card-img" />
+        <div class="item-card-body">
+          <h4>Hawai Point Burger</h4>
+          <p>Csirke + ananász – édes-pikáns trópusi kombó</p>
+          <div class="item-card-footer">
+            <span class="item-price">4 290 Ft</span>
+            <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="item-card">
+        <img src="img/angry_burger_menu.jpg" alt="Angry Point Burger" class="item-card-img" />
+        <div class="item-card-body">
+          <h4>Angry Point Burger</h4>
+          <p>Csirke + fekete chili – csak erős gyomrúaknak</p>
+          <div class="item-card-footer">
+            <span class="item-price">4 450 Ft</span>
+            <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="item-card">
+        <img src="img/point_burger.jpg" alt="Chili Cheese" class="item-card-img" />
+        <div class="item-card-body">
+          <h4>Chili Cheese</h4>
+          <p>2 húspogácsa, 2 réteg cheddar – extra sajtos</p>
+          <div class="item-card-footer">
+            <span class="item-price">4 790 Ft</span>
+            <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="item-card">
+        <img src="img/point_burger_menu.jpg" alt="Point Burger Fresh" class="item-card-img" />
+        <div class="item-card-body">
+          <h4>Point Burger Fresh</h4>
+          <p>Friss saláta, paradicsom, uborka – könnyedebb</p>
+          <div class="item-card-footer">
+            <span class="item-price">4 790 Ft</span>
+            <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- KÖRETEK -->
+  <div id="sides" class="etlap-section dark">
+    <div class="etlap-inner">
+      <div class="section-hdr">
+        <div class="section-hdr-icon"><i class="fa-solid fa-utensils"></i></div>
+        <h2>Köretek</h2>
+        <span class="section-hdr-count">6 féle</span>
+      </div>
+      <div class="items-grid">
+
+        <div class="item-card">
+          <img src="img/point_krumpli.jpg" alt="Point Krumpli" class="item-card-img" />
+          <div class="item-card-body">
+            <h4>Point Krumpli</h4>
+            <p>Ropogósra sütött sült burgonya</p>
+            <div class="item-card-footer">
+              <span class="item-price">1 290 Ft</span>
+              <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="item-card">
+          <img src="img/sajtos_fries.jpg" alt="Nagyon Sajtos French Fries" class="item-card-img" />
+          <div class="item-card-body">
+            <h4>Nagyon Sajtos French Fries</h4>
+            <p>Sült krumpli bőséges sajtszósszal meglocsolva</p>
+            <div class="item-card-footer">
+              <span class="item-price">2 590 Ft</span>
+              <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="item-card">
+          <img src="img/hagymakarika.jpg" alt="Hagymakarika" class="item-card-img" />
+          <div class="item-card-body">
+            <h4>Hagymakarika</h4>
+            <p>Ropogós rántott hagymakarika – 6 darab</p>
+            <div class="item-card-footer">
+              <span class="item-price">1 590 Ft</span>
+              <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="item-card">
+          <img src="img/point_falatok.jpg" alt="Point Falatok" class="item-card-img" />
+          <div class="item-card-body">
+            <h4>Point Falatok</h4>
+            <p>Csirkefalat – 6 darab, ropogós bundában</p>
+            <div class="item-card-footer">
+              <span class="item-price">1 950 Ft</span>
+              <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="item-card">
+          <img src="img/angry_falatok.jpg" alt="Angry Falatok" class="item-card-img" />
+          <div class="item-card-body">
+            <h4>Angry Falatok</h4>
+            <p>Fekete chili cheese falatok – csípős, sajtszószos</p>
+            <div class="item-card-footer">
+              <span class="item-price">2 390 Ft</span>
+              <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="item-card">
+          <img src="img/inferno_falatok.jpg" alt="Inferno Falatok" class="item-card-img" />
+          <div class="item-card-body">
+            <h4>Inferno Falatok</h4>
+            <p>Habaneros chili – csak a legbátrabbaknak</p>
+            <div class="item-card-footer">
+              <span class="item-price">2 390 Ft</span>
+              <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SZÓSZOK -->
+  <div id="sauces" class="etlap-section"><div class="etlap-inner">
+    <div class="section-hdr">
+      <div class="section-hdr-icon"><i class="fa-solid fa-droplet"></i></div>
+      <h2>Mártogatós Szószok</h2>
+      <span class="section-hdr-count">8 féle</span>
+    </div>
+    <div class="sauce-grid">
+      <div class="sauce-card"><img src="img/titkos_szosz.jpg" alt="Titkos Szósz"><div class="sauce-card-body"><h4>Titkos Szósz <span class="special-badge" style="font-size:0.55rem;">HÁZI</span></h4><div class="sauce-price">500 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="sauce-card"><img src="img/ketchup.jpg" alt="Ketchup"><div class="sauce-card-body"><h4>Ketchup</h4><div class="sauce-price">500 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="sauce-card"><img src="img/majonez.jpg" alt="Majonéz"><div class="sauce-card-body"><h4>Majonéz</h4><div class="sauce-price">500 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="sauce-card"><img src="img/chili.jpg" alt="Chili"><div class="sauce-card-body"><h4>Chili</h4><div class="sauce-price">500 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="sauce-card"><img src="img/bbq.jpg" alt="BBQ"><div class="sauce-card-body"><h4>BBQ</h4><div class="sauce-price">500 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="sauce-card"><img src="img/sajtszosz.jpg" alt="Sajtszósz"><div class="sauce-card-body"><h4>Sajtszósz</h4><div class="sauce-price">600 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="sauce-card"><img src="img/fokhagymas_majonez.jpg" alt="Fokhagymás majonéz"><div class="sauce-card-body"><h4>Fokhagymás majonéz</h4><div class="sauce-price">600 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="sauce-card"><img src="img/pikas_szosz.jpg" alt="Pikáns édes-savanyú szósz"><div class="sauce-card-body"><h4>Pikáns édes-savanyú</h4><div class="sauce-price">600 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+    </div>
+  </div>
+
+  <!-- DESSZERT -->
+  <div id="dessert" class="etlap-section dark">
+    <div class="etlap-inner">
+      <div class="section-hdr">
+        <div class="section-hdr-icon"><i class="fa-solid fa-cookie-bite"></i></div>
+        <h2>Desszert</h2>
+        <span class="section-hdr-count">1 fogás</span>
+      </div>
+      <div class="items-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="item-card">
+          <img src="img/szufle.jpg" alt="Point Szuflé" class="item-card-img" />
+          <div class="item-card-body">
+            <h4>Point Szuflé</h4>
+            <p>Meleg csokiszuflé, tejszínhabbal – tökéletes lezárás</p>
+            <div class="item-card-footer">
+              <span class="item-price">1 950 Ft</span>
+              <a href="rendeles.html" class="item-order-btn"><i class="fa-solid fa-plus"></i> Rendelem</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ITALOK -->
+  <div id="drinks" class="etlap-section"><div class="etlap-inner">
+    <div class="section-hdr">
+      <div class="section-hdr-icon"><i class="fa-solid fa-glass-water"></i></div>
+      <h2>Italok</h2>
+      <span class="section-hdr-count">8 féle</span>
+    </div>
+    <div class="drink-grid">
+      <div class="drink-card"><img src="img/pepsi.jpg" alt="Pepsi"><div class="drink-card-body"><h4>Pepsi</h4><p>330 ml</p><div class="drink-price">990 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;margin-top:0.3rem;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="drink-card"><img src="img/pepsi_zero.jpg" alt="Pepsi Zero"><div class="drink-card-body"><h4>Pepsi Zero</h4><p>330 ml</p><div class="drink-price">990 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;margin-top:0.3rem;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="drink-card"><img src="img/pepsi_twist.jpg" alt="Pepsi Twist"><div class="drink-card-body"><h4>Pepsi Twist</h4><p>330 ml</p><div class="drink-price">990 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;margin-top:0.3rem;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="drink-card"><img src="img/mountain_dew.jpg" alt="Mountain Dew"><div class="drink-card-body"><h4>Mountain Dew</h4><p>330 ml</p><div class="drink-price">990 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;margin-top:0.3rem;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="drink-card"><img src="img/7up.jpg" alt="7UP"><div class="drink-card-body"><h4>7UP</h4><p>330 ml</p><div class="drink-price">990 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;margin-top:0.3rem;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="drink-card"><img src="img/mirinda.jpg" alt="Mirinda"><div class="drink-card-body"><h4>Mirinda</h4><p>330 ml</p><div class="drink-price">990 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;margin-top:0.3rem;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="drink-card"><img src="img/dr_pepper.jpg" alt="Dr Pepper"><div class="drink-card-body"><h4>Dr Pepper</h4><p>330 ml</p><div class="drink-price">990 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;margin-top:0.3rem;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+      <div class="drink-card"><img src="img/asvanyviz.jpg" alt="Szentkirályi Ásványvíz"><div class="drink-card-body"><h4>Szentkirályi Ásványvíz</h4><p>500 ml</p><div class="drink-price">900 Ft</div><a href="rendeles.html" class="item-order-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem;justify-content:center;margin-top:0.3rem;"><i class="fa-solid fa-plus"></i> Rendelem</a></div><a href="rendeles.html" class="item-order-btn" style="font-size:0.72rem;padding:0.35rem 0.75rem;white-space:nowrap;flex-shrink:0;"><i class="fa-solid fa-plus"></i> Rendelem</a></div>
+    </div>
+  </div>
 
   <footer>
     <div class="footer-logo">SMASH<span>POINT</span></div>
@@ -479,7 +797,6 @@
       <li><a href="etlap.html">Étlap</a></li>
       <li><a href="rolunk.html">Rólunk</a></li>
       <li><a href="kapcsolat.html">Kapcsolat</a></li>
-
     </ul>
     <div class="footer-bottom">
       <p>© 2025 Smash Point – Liszt Ferenc utca 26., 9200 Mosonmagyaróvár</p>
@@ -487,11 +804,84 @@
   </footer>
 
   <script>
-    const btn = document.getElementById('hamburger');
-    const links = document.getElementById('nav-links');
-    btn.addEventListener('click', () => links.classList.toggle('open'));
+    // Hamburger
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.getElementById('nav-links').classList.toggle('open');
+    });
+
+    // Aktív kategória kiemelés scroll alapján
+    const sections = ['special','menus','burgers','sides','sauces','dessert','drinks'];
+    const tabs = document.querySelectorAll('.cat-tab');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if(e.isIntersecting) {
+          tabs.forEach(t => t.classList.remove('active'));
+          const active = document.querySelector(`.cat-tab[href="#${e.target.id}"]`);
+          if(active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) observer.observe(el);
+    });
+
+    // ── KERESŐ ──────────────────────────────────────
+    const searchInput = document.getElementById('search-input');
+    const searchClear = document.getElementById('search-clear');
+    const searchCount = document.getElementById('search-count');
+    const catNav      = document.getElementById('cat-nav');
+
+    // Összegyűjtjük az összes kártyát kereshetőség miatt
+    function getAllCards() {
+      return document.querySelectorAll('.item-card, .combo-card, .sauce-card, .drink-card');
+    }
+
+    function doSearch(q) {
+      q = q.trim().toLowerCase();
+      const cards = getAllCards();
+      let found = 0;
+
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        const match = !q || text.includes(q);
+        card.style.display = match ? '' : 'none';
+        if(match) found++;
+      });
+
+      // Szekció fejlécek elrejtése ha üresek
+      sections.forEach(id => {
+        const sec = document.getElementById(id);
+        if(!sec) return;
+        const visible = [...sec.querySelectorAll('.item-card, .combo-card, .sauce-card, .drink-card')]
+          .some(c => c.style.display !== 'none');
+        sec.style.display = visible ? '' : 'none';
+      });
+
+      // Számlálás és UI
+      searchClear.classList.toggle('show', q.length > 0);
+      catNav.classList.toggle('search-active', q.length > 0);
+
+      if(q) {
+        searchCount.innerHTML = `<span>${found}</span> találat`;
+      } else {
+        searchCount.innerHTML = '';
+        sections.forEach(id => {
+          const sec = document.getElementById(id);
+          if(sec) sec.style.display = '';
+        });
+      }
+    }
+
+    searchInput.addEventListener('input', e => doSearch(e.target.value));
+
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      doSearch('');
+      searchInput.focus();
+    });
   </script>
-
-
 </body>
 </html>

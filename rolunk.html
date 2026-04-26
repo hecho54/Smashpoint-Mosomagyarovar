@@ -4,9 +4,196 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rólunk – Smash Point Mosonmagyaróvár</title>
-  <meta name="description" content="Ismerd meg a Smash Point történetét és filosófiáját. Prémium smash burgerek Mosonmagyaróváron." />
+  <meta name="description" content="Ismerd meg a Smash Point történetét. Prémium smash burgerek Mosonmagyaróváron." />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* ── Story section ── */
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+    .story-text .section-label { margin-bottom: 0.5rem; }
+    .story-text h2 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    .story-text h2 span { color: var(--pink); }
+    .story-text p {
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 1.1rem;
+      font-size: 0.95rem;
+    }
+    .story-visual {
+      position: relative;
+    }
+    .story-visual img {
+      width: 100%;
+      border-radius: 20px;
+      display: block;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    }
+    .story-quote {
+      position: absolute;
+      bottom: -1.5rem;
+      left: -1.5rem;
+      background: var(--pink);
+      color: #fff;
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      max-width: 260px;
+      box-shadow: 0 8px 32px rgba(255,31,155,0.35);
+    }
+    .story-quote p {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      line-height: 1.3;
+      margin: 0;
+      color: #fff;
+    }
+    .story-quote span {
+      font-size: 0.72rem;
+      opacity: 0.8;
+      display: block;
+      margin-top: 0.3rem;
+    }
+
+    /* ── Values ── */
+    .values-grid-new {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .value-card-new {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .value-card-new:hover {
+      border-color: var(--pink);
+      transform: translateY(-4px);
+    }
+    .value-icon-new {
+      width: 52px; height: 52px;
+      background: rgba(255,31,155,0.1);
+      border: 1px solid rgba(255,31,155,0.25);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: var(--pink);
+      margin-bottom: 1.25rem;
+    }
+    .value-card-new h4 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .value-card-new p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── Technika section ── */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    .tech-steps { display: flex; flex-direction: column; gap: 1.25rem; }
+    .tech-step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    .tech-step-num {
+      width: 36px; height: 36px;
+      background: var(--pink);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Oswald', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .tech-step-text h5 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+    .tech-step-text p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+    .tech-img {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    }
+    .tech-img img { width: 100%; display: block; }
+
+    /* ── CTA cards ── */
+    .cta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .cta-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .cta-card.primary {
+      background: linear-gradient(135deg, var(--purple), var(--pink-dark));
+      border-color: transparent;
+    }
+    .cta-card i { font-size: 1.8rem; color: var(--pink); }
+    .cta-card.primary i { color: #fff; }
+    .cta-card h3 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .cta-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; flex: 1; }
+    .cta-card.primary p { color: rgba(255,255,255,0.8); }
+
+    @media (max-width: 768px) {
+      .story-grid,
+      .tech-grid,
+      .cta-grid { grid-template-columns: 1fr; }
+      .story-visual { margin-top: 3rem; }
+      .story-quote { left: 0; max-width: 100%; position: relative; bottom: 0; margin-top: 1rem; }
+      .values-grid-new { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .values-grid-new { grid-template-columns: 1fr; }
+      .story-text h2 { font-size: 1.8rem; }
+    }
+  </style>
 </head>
 <body>
 
@@ -24,86 +211,181 @@
     </ul>
   </nav>
 
+  <!-- PAGE HERO -->
   <div class="page-hero">
-    <div class="section-label">A mi történetünk</div>
+    <div class="section-label">Ismerj meg minket</div>
     <h1 class="section-title">RÓ<span>LUNK</span></h1>
-    <p style="color: var(--muted); max-width: 500px; margin: 0 auto;">Szenvedély, ropogós kéreg és tökéletes ízek – ez a Smash Point.</p>
+    <p style="color:var(--muted);max-width:500px;margin:0 auto;">Szenvedély, ropogós kéreg és tökéletes ízek – ez a Smash Point.</p>
   </div>
 
-  <!-- ABOUT -->
+  <!-- STORY -->
   <section>
     <div class="container">
-      <div class="about-grid">
-        <div class="about-text">
+      <div class="story-grid">
+        <div class="story-text">
+          <div class="section-label">A mi történetünk</div>
           <h2>A <span>Smash Burger</span> Szerelmesei</h2>
           <p>A Smash Point Mosonmagyaróváron született, abból a meggyőződésből, hogy a városnak is jár egy igazán ütős, prémium smash burger élmény.</p>
-          <p>A smash burger technika lényege: a frissen formázott húspogácsát forró öntöttvas sütőlapra tesszük, majd erőteljesen lepréseljük. Ez hozza létre a tökéletes ropogós Maillard-kérget – a szaftosság és a textúra tökéletes kombinációját.</p>
-          <p>Nálunk semmi sem előre fagyasztott, semmi sem kompromisszumos. Csak friss hús, minőségi alapanyagok és valódi szenvedély.</p>
-          <a href="etlap.html" class="btn btn-primary" style="margin-top: 1rem;">Étlapunk →</a>
+          <p>Nem elégedtünk meg a szokványos megoldásokkal. Megtanultuk az autentikus smash technikát, kiválogattuk a legjobb alapanyagokat, és megalkottuk a saját titkos szószainkat.</p>
+          <p>Nálunk semmi sem előre fagyasztott, semmi sem kompromisszumos. Csak friss hús, minőségi alapanyagok és valódi szenvedély – minden egyes burgerben.</p>
+          <a href="rendeles.html" class="btn btn-primary" style="margin-top:0.5rem;"><i class="fa-solid fa-bag-shopping"></i> Rendelj most</a>
         </div>
-        <div class="about-visual">
-          <img src="img/banner.jpg" alt="Smash Point burger és krumpli" />
-          <div class="about-visual-caption">"Bite into happiness with every burger."</div>
+        <div class="story-visual">
+          <img src="img/banner.jpg" alt="Smash Point burger" />
+          <div class="story-quote">
+            <p>"Bite into happiness with every burger."</p>
+            <span>— Smash Point motto</span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- MASCOT -->
-  <section style="background: var(--dark2); padding: 4rem 2rem;">
+  <!-- ORIGIN STORY -->
+  <section style="background:var(--dark2);padding:5rem 2rem;">
     <div class="container">
-      <div class="mascot-section">
-        <img src="img/logo.jpg" alt="Smash Point mascot" class="mascot-img" />
-        <div class="mascot-text">
-          <h2>Burger, American, <span>Snacks</span></h2>
-          <p>Autentikus amerikai stílusú smash burgerező Mosonmagyaróváron. Kínálatunkban klasszikus smash burgerek, csípős variációk, ropogós köretek, házi szószok és frissítő italok várnak.</p>
-          <p>Elérhető helyszínen fogyasztásra és házhozszállítással is – Mosonmagyaróváron.</p>
-          <a href="kapcsolat.html" class="btn btn-primary">Megtalálsz minket →</a>
+      <div class="section-label">Ahol elkezdtük</div>
+      <h2 class="section-title" style="margin-bottom:0.75rem;">Innen indultunk... <span>ide jutottunk.</span></h2>
+      <p style="color:var(--muted);max-width:560px;margin-bottom:3rem;line-height:1.8;">
+        Nem volt kész konyha.<br>
+        Nem volt biztos jövő.<br>
+        Csak egy ötlet… és rengeteg munka.<br><br>
+        Ma pedig már itt áll a Smash Point.<br>
+        Folytatjuk tovább, nem állunk meg!
+      </p>
+
+      <!-- Előtte–Utána képek -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;">
+        <div style="border-radius:16px;overflow:hidden;border:1px solid var(--border);position:relative;">
+          <!-- Cseréld ki: img/elotte.jpg – töltsd fel az "előtte" képet -->
+          <img src="img/Elotte.jpg" alt="Előtte" onerror="this.closest('div').style.background='var(--card)';this.style.display='none'"
+            style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;" />
+          <div style="position:absolute;top:0.75rem;left:0.75rem;background:rgba(0,0,0,0.6);color:#fff;font-size:0.75rem;font-weight:700;padding:0.3rem 0.75rem;border-radius:20px;letter-spacing:1px;text-transform:uppercase;">Előtte</div>
         </div>
+        <div style="border-radius:16px;overflow:hidden;border:1px solid var(--pink);position:relative;box-shadow:0 8px 32px rgba(255,31,155,0.15);">
+          <!-- Cseréld ki: img/utana.jpg – töltsd fel az "utána" képet -->
+          <img src="img/Utana.jpg" alt="Utána" onerror="this.closest('div').style.background='var(--card)';this.style.display='none'"
+            style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;" />
+          <div style="position:absolute;top:0.75rem;left:0.75rem;background:var(--pink);color:#fff;font-size:0.75rem;font-weight:700;padding:0.3rem 0.75rem;border-radius:20px;letter-spacing:1px;text-transform:uppercase;">Utána</div>
+        </div>
+      </div>
+
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;text-align:center;max-width:600px;margin:0 auto;">
+        <i class="fa-solid fa-heart" style="color:var(--pink);font-size:1.5rem;margin-bottom:0.75rem;display:block;"></i>
+        <p style="color:var(--text);font-size:1rem;line-height:1.7;font-style:italic;">
+          „Köszönjük, hogy részesei vagytok ennek az útnak."
+        </p>
+        <p style="color:var(--muted);font-size:0.82rem;margin-top:0.5rem;">— Smash Point csapata</p>
       </div>
     </div>
   </section>
 
-  <!-- ÉRTÉKEINK -->
-  <section>
+  <!-- VALUES -->
+  <section style="background:var(--dark2);padding:5rem 2rem;">
     <div class="container">
       <div class="section-label">Ami megkülönböztet</div>
-      <h2 class="section-title">ÉRTÉKEIN<span>K</span></h2>
-      <div class="values-grid">
-        <div class="value-card">
-          <div class="icon"><i class="fa-solid fa-leaf"></i></div>
+      <h2 class="section-title" style="margin-bottom:2.5rem;">Értékein<span>k</span></h2>
+      <div class="values-grid-new">
+        <div class="value-card-new">
+          <div class="value-icon-new"><i class="fa-solid fa-leaf"></i></div>
           <h4>Friss alapanyag</h4>
-          <p>Minden nap frissen dolgozunk. Nálunk nincs fagyasztott húspogácsa.</p>
+          <p>Minden nap frissen dolgozunk. Nálunk nincs fagyasztott húspogácsa – soha.</p>
         </div>
-        <div class="value-card">
-          <div class="icon"><i class="fa-solid fa-fire"></i></div>
+        <div class="value-card-new">
+          <div class="value-icon-new"><i class="fa-solid fa-fire"></i></div>
           <h4>Igazi smash technika</h4>
-          <p>Az autentikus smash módszerrel készülnek a burgereink – kéregért mindent.</p>
+          <p>Az autentikus smash módszerrel készülnek a burgereink – a tökéletes kéregért mindent.</p>
         </div>
-        <div class="value-card">
-          <div class="icon"><i class="fa-solid fa-cheese"></i></div>
+        <div class="value-card-new">
+          <div class="value-icon-new"><i class="fa-solid fa-cheese"></i></div>
           <h4>Minőségi sajtok</h4>
           <p>Prémium cheddar, amely tökéletesen olvad el minden burgerben.</p>
         </div>
-        <div class="value-card">
-          <div class="icon"><i class="fa-solid fa-pepper-hot"></i></div>
+        <div class="value-card-new">
+          <div class="value-icon-new"><i class="fa-solid fa-pepper-hot"></i></div>
           <h4>Bátor ízek</h4>
-          <p>Az enyhe klasszikustól az Inferno szintig – mindenkinek megvan a szintje.</p>
+          <p>Az enyhe klasszikustól az Inferno szintig – mindenkinek megvan a maga szintje.</p>
         </div>
-        <div class="value-card">
-          <div class="icon"><i class="fa-solid fa-flask"></i></div>
+        <div class="value-card-new">
+          <div class="value-icon-new"><i class="fa-solid fa-flask"></i></div>
           <h4>Titkos szósz</h4>
-          <p>A receptet nem adjuk ki – de megkóstolni kötelező.</p>
+          <p>A receptet nem adjuk ki – de megkóstolni kötelező. Ez az ami összeköti a burgert.</p>
         </div>
-        <div class="value-card">
-          <div class="icon"><i class="fa-solid fa-heart"></i></div>
+        <div class="value-card-new">
+          <div class="value-icon-new"><i class="fa-solid fa-heart"></i></div>
           <h4>Szeretettel készül</h4>
-          <p>Minden burgert úgy készítünk, mintha magunknak csinálnánk.</p>
+          <p>Minden burgert úgy készítünk, mintha magunknak csinálnánk – ez az igazi titok.</p>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- SMASH TECHNIKA -->
+  <section>
+    <div class="container">
+      <div class="tech-grid">
+        <div>
+          <div class="section-label">A módszer</div>
+          <h2 class="section-title" style="margin-bottom:2rem;">A Smash <span>Technika</span></h2>
+          <div class="tech-steps">
+            <div class="tech-step">
+              <div class="tech-step-num">1</div>
+              <div class="tech-step-text">
+                <h5>Friss húsgolyó</h5>
+                <p>Frissen formázott, adagolt marhahús – semmi előre fagyasztott.</p>
+              </div>
+            </div>
+            <div class="tech-step">
+              <div class="tech-step-num">2</div>
+              <div class="tech-step-text">
+                <h5>Forró lap</h5>
+                <p>A húst forró öntöttvas sütőlapra helyezzük, ahol azonnal karamellizálódni kezd.</p>
+              </div>
+            </div>
+            <div class="tech-step">
+              <div class="tech-step-num">3</div>
+              <div class="tech-step-text">
+                <h5>Lepréseljük</h5>
+                <p>Erőteljesen lepréseljük – ez hozza létre a tökéletes ropogós Maillard-kérget.</p>
+              </div>
+            </div>
+            <div class="tech-step">
+              <div class="tech-step-num">4</div>
+              <div class="tech-step-text">
+                <h5>Olvasztott sajt</h5>
+                <p>Ráolvasztott prémium cheddar, titkos szósz, briós zsemle – tökéletes harmónia.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tech-img">
+          <img src="img/banner.jpg" alt="Smash technika" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="background:var(--dark2);padding:5rem 2rem;">
+    <div class="container">
+      <div class="section-label">Következő lépés</div>
+      <h2 class="section-title" style="margin-bottom:2rem;">Készen <span>Állsz?</span></h2>
+      <div class="cta-grid">
+        <div class="cta-card primary">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <h3>Rendelj most</h3>
+          <p>Válassz a burgereink közül és rendeld házhoz vagy vedd el személyesen.</p>
+          <a href="rendeles.html" class="btn" style="background:#fff;color:var(--purple);font-weight:700;margin-top:0.5rem;">Rendelés →</a>
+        </div>
+        <div class="cta-card">
+          <i class="fa-solid fa-location-dot"></i>
+          <h3>Látogass meg</h3>
+          <p>Liszt Ferenc utca 26., Mosonmagyaróvár<br>H–Cs, Szo: 11:00–19:00</p>
+          <a href="kapcsolat.html" class="btn btn-outline" style="margin-top:0.5rem;">Elérhetőségek →</a>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <footer>
     <div class="footer-logo">SMASH<span>POINT</span></div>
@@ -113,7 +395,6 @@
       <li><a href="etlap.html">Étlap</a></li>
       <li><a href="rolunk.html">Rólunk</a></li>
       <li><a href="kapcsolat.html">Kapcsolat</a></li>
-
     </ul>
     <div class="footer-bottom">
       <p>© 2025 Smash Point – Liszt Ferenc utca 26., 9200 Mosonmagyaróvár</p>
@@ -121,11 +402,9 @@
   </footer>
 
   <script>
-    const btn = document.getElementById('hamburger');
-    const links = document.getElementById('nav-links');
-    btn.addEventListener('click', () => links.classList.toggle('open'));
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.getElementById('nav-links').classList.toggle('open');
+    });
   </script>
-
-
 </body>
 </html>
