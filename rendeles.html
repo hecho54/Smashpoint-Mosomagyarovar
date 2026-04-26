@@ -6,6 +6,7 @@
   <title>Rendelés – Smash Point Mosonmagyaróvár</title>
   <meta name="description" content="Rendelj online a Smash Point burgerezőből Mosonmagyaróváron. Elvitel és házhozszállítás." />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     /* ── Layout ── */
     .order-layout {
@@ -443,7 +444,7 @@
   <!-- CLOSED OVERLAY -->
   <div id="closed-state" style="display:none; padding: 2rem;">
     <div class="closed-banner">
-      <div style="font-size:3rem; margin-bottom:1rem;">🔒</div>
+      <div style="font-size:3rem; margin-bottom:1rem;"></div>
       <h3>Jelenleg zárva vagyunk</h3>
       <p>Az online rendelés csak nyitvatartási időben lehetséges.</p>
       <br>
@@ -457,12 +458,12 @@
     <!-- Menu -->
     <div>
       <div class="cat-nav" id="cat-nav">
-        <button class="cat-btn active" data-cat="special">⭐ Különleges</button>
-        <button class="cat-btn" data-cat="burger">🍔 Burgerek</button>
-        <button class="cat-btn" data-cat="koret">🍟 Köretek</button>
-        <button class="cat-btn" data-cat="szosz">🥣 Szószok</button>
-        <button class="cat-btn" data-cat="desszert">🍫 Desszert</button>
-        <button class="cat-btn" data-cat="ital">🥤 Italok</button>
+        <button class="cat-btn active" data-cat="special"><i class="fa-solid fa-star"></i> Különleges</button>
+        <button class="cat-btn" data-cat="burger"><i class="fa-solid fa-burger"></i> Burgerek</button>
+        <button class="cat-btn" data-cat="koret"><i class="fa-solid fa-utensils"></i> Köretek</button>
+        <button class="cat-btn" data-cat="szosz"><i class="fa-solid fa-droplet"></i> Szószok</button>
+        <button class="cat-btn" data-cat="desszert"><i class="fa-solid fa-cookie-bite"></i> Desszert</button>
+        <button class="cat-btn" data-cat="ital"><i class="fa-solid fa-glass-water"></i> Italok</button>
       </div>
       <div class="items-grid" id="items-grid"></div>
     </div>
@@ -474,7 +475,7 @@
         <span class="cart-count-badge" id="cart-badge">0</span>
       </div>
       <div class="cart-empty-state" id="cart-empty">
-        <div class="ei">🍔</div>
+        <div class="ei"></div>
         <p>A kosarad üres.<br>Adj hozzá tételeket a menüből!</p>
       </div>
       <div class="cart-items-list" id="cart-list"></div>
@@ -488,7 +489,7 @@
           <span class="flabel">Átvétel módja</span>
           <div class="toggle-group">
             <button class="tbtn active" data-type="takeaway" id="tb-takeaway">🥡 Elviszem</button>
-            <button class="tbtn" data-type="delivery" id="tb-delivery">🛵 Házhozszállítás</button>
+            <button class="tbtn" data-type="delivery" id="tb-delivery"><i class="fa-solid fa-motorcycle"></i> Házhozszállítás</button>
           </div>
         </div>
 
@@ -538,7 +539,7 @@
           <span class="flabel">Átvétel módja</span>
           <div class="toggle-group">
             <button class="tbtn active" data-type="takeaway" id="dtb-takeaway">🥡 Elviszem</button>
-            <button class="tbtn" data-type="delivery" id="dtb-delivery">🛵 Házhozszállítás</button>
+            <button class="tbtn" data-type="delivery" id="dtb-delivery"><i class="fa-solid fa-motorcycle"></i> Házhozszállítás</button>
           </div>
         </div>
         <input type="text" class="finput" id="dc-name" placeholder="Teljes neved *" />
@@ -567,7 +568,7 @@
       <h2>Rendelés leadva!</h2>
       <p>Rendelésed száma:</p>
       <div class="order-num-pill" id="success-num">#001</div>
-      <p>Hamarosan elkészítjük!<br>Köszönjük a rendelést! 🔥</p>
+      <p>Hamarosan elkészítjük!<br>Köszönjük a rendelést!</p>
       <br>
       <button class="submit-btn" onclick="closeSuccess()" style="width:auto;padding:.75rem 2rem;">Új rendelés</button>
     </div>
@@ -883,5 +884,7 @@
     renderMenu();
     updateUI();
   </script>
+
+
 </body>
 </html>

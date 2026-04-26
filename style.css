@@ -641,16 +641,16 @@ section { padding: 5rem 2rem; }
   filter: grayscale(90%) invert(5%) hue-rotate(200deg);
 }
 
-/* ── WOLT BANNER ── */
-.wolt-banner {
-  background: linear-gradient(135deg, #009de0 0%, #006fa8 100%);
+/* ── PROMO BANNER ── */
+.promo-banner {
+  background: linear-gradient(135deg, var(--purple) 0%, var(--pink-dark) 100%);
   border-radius: 16px;
   padding: 2.5rem 2rem;
   text-align: center;
-  box-shadow: 0 8px 40px rgba(0,157,224,0.2);
+  box-shadow: 0 8px 40px rgba(255,31,155,0.2);
 }
 
-.wolt-banner h3 {
+.promo-banner h3 {
   font-family: 'Oswald', sans-serif;
   font-size: 1.8rem;
   font-weight: 700;
@@ -659,10 +659,10 @@ section { padding: 5rem 2rem; }
   margin-bottom: 0.5rem;
 }
 
-.wolt-banner p { color: rgba(255,255,255,0.85); margin-bottom: 1.5rem; }
+.promo-banner p { color: rgba(255,255,255,0.85); margin-bottom: 1.5rem; }
 
-.btn-wolt { background: #fff; color: #009de0; font-weight: 700; }
-.btn-wolt:hover { background: #e8f7ff; transform: translateY(-2px); }
+.btn-action { background: #fff; color: var(--purple); font-weight: 700; }
+.btn-action:hover { background: #f5f0ff; transform: translateY(-2px); }
 
 /* ── MASCOT SECTION ── */
 .mascot-section {
@@ -712,7 +712,6 @@ section { padding: 5rem 2rem; }
 /* ── FOOTER ── */
 footer {
   background: var(--dark2);
-  border-top: 1px solid var(--border);
   padding: 3rem 2rem;
   text-align: center;
 }
@@ -749,42 +748,116 @@ footer {
 .footer-links a:hover { color: var(--pink); }
 
 .footer-bottom {
-  border-top: 1px solid var(--border);
   padding-top: 1.5rem;
   color: #4a3a60;
   font-size: 0.78rem;
 }
 
-/* ── RESPONSIVE ── */
+/* ══ TABLET (768px) ══════════════════════════════════ */
 @media (max-width: 768px) {
+  /* Nav */
   nav { padding: 0 1.25rem; }
 
   .nav-links {
     display: none;
     position: absolute;
     top: 68px;
-    left: 0;
-    right: 0;
+    left: 0; right: 0;
     background: var(--dark2);
     flex-direction: column;
     gap: 0;
     border-bottom: 1px solid var(--border);
+    z-index: 99;
   }
-
   .nav-links.open { display: flex; }
   .nav-links li a { display: block; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); }
   .hamburger { display: flex; }
 
+  /* Sections */
+  section { padding: 3rem 1.25rem; }
+  .container { padding: 0; }
+
+  /* Hero */
+  .hero { min-height: 70vh; padding: 3rem 1.25rem; }
+  .hero-logo-img { width: 150px; height: 150px; }
+  .hero-btns { flex-direction: column; align-items: center; gap: 0.75rem; }
+  .hero-btns .btn { width: 100%; max-width: 280px; text-align: center; }
+
+  /* Grids */
   .about-grid,
-  .kapcsolat-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .kapcsolat-grid  { grid-template-columns: 1fr; gap: 2rem; }
+  .features-grid   { grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .values-grid     { grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .menu-preview-grid { grid-template-columns: 1fr; }
 
-  .mascot-section { flex-direction: column; text-align: center; padding: 2rem; }
-  .mascot-img { width: 140px; height: 140px; }
+  /* Mascot */
+  .mascot-section { flex-direction: column; text-align: center; padding: 2rem 1.25rem; gap: 1.5rem; }
+  .mascot-img { width: 130px; height: 130px; }
+  .mascot-text h2 { font-size: 1.6rem; }
 
+  /* Étlap */
+  .menu-item { flex-direction: row; }
+  .menu-item-img { width: 72px; min-height: 72px; }
+  .menu-card-img { width: 80px; }
+
+  /* Kapcsolat */
   .hours-grid { grid-template-columns: 1fr; }
   .hours-row span:first-child { font-weight: 600; color: var(--text); }
   .hours-row span:last-child { padding-bottom: 0.4rem; }
 
-  .menu-item-img { width: 72px; }
-  .menu-card-img { width: 80px; }
+  /* Section titles */
+  .section-title { font-size: 2rem; }
+
+  /* Feature cards */
+  .feature-card { padding: 1.5rem 1rem; }
+  .feature-icon { font-size: 2rem; }
+}
+
+/* ══ MOBIL (480px) ═══════════════════════════════════ */
+@media (max-width: 480px) {
+  /* Nav */
+  nav { height: 60px; }
+  .nav-logo { font-size: 1.3rem; }
+
+  /* Hero */
+  .hero { min-height: 60vh; padding: 2.5rem 1rem; }
+  .hero-logo-img { width: 120px; height: 120px; margin-bottom: 1rem; }
+  .hero-sub { font-size: 0.9rem; letter-spacing: 2px; }
+  .hero p { font-size: 0.95rem; }
+  .hero-btns .btn { font-size: 0.9rem; padding: 0.75rem 1.5rem; }
+
+  /* Sections */
+  section { padding: 2.5rem 1rem; }
+
+  /* Grids egytől egyig 1 oszlop */
+  .features-grid { grid-template-columns: 1fr; }
+  .values-grid   { grid-template-columns: 1fr; }
+
+  /* Section cím */
+  .section-title { font-size: 1.7rem; }
+  .section-label { font-size: 0.65rem; }
+
+  /* Étlap kártyák */
+  .menu-item-img { width: 60px; min-height: 60px; }
+  .menu-item-left h4 { font-size: 0.88rem; }
+  .menu-item-price { font-size: 0.95rem; }
+
+  /* Kapcsolat */
+  .social-link { padding: 0.75rem; }
+  .map-embed iframe { height: 200px; }
+
+  /* Footer */
+  footer { padding: 2rem 1rem; }
+  .footer-logo { font-size: 1.4rem; }
+  .footer-links { gap: 1rem; flex-wrap: wrap; justify-content: center; }
+  .footer-links a { font-size: 0.8rem; }
+  .footer-bottom p { font-size: 0.72rem; }
+
+  /* Értékkártyák */
+  .value-card { padding: 1.25rem; }
+  .value-card .icon { font-size: 1.6rem; }
+
+  /* About */
+  .about-visual img { border-radius: 12px; }
+  .about-visual-caption { font-size: 1rem; padding: 1rem; }
 }
